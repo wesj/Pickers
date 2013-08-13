@@ -1,0 +1,52 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center_vertical"
+    android:padding="32dp"
+    tools:context=".MainActivity" >
+
+    <TextView
+    	android:gravity="center_horizontal"
+	    android:id="@+id/time"
+	    android:textSize="40sp"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"/>
+
+	<Button android:id="@+id/numberButton"
+	    android:text="Number Picker"
+	    android:gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    
+	<Button android:id="@+id/timePickerButton"
+	    android:text="Time Picker"
+	    android:gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+	    
+	<Button android:id="@+id/colorButton1"
+	    android:text="Color Picker 1"
+	    android:gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+	<Button android:id="@+id/colorButton2"
+	    android:text="Color Picker 2"
+	    android:gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+	<Button android:id="@+id/datePicker"
+	    android:text="Date Picker"
+	    android:gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+	
+<!-- <com.digdug.colorpicker.DatePicker
+	    android:id="@+id/timepicker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>-->
+
+</LinearLayout>

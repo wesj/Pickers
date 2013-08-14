@@ -12,6 +12,15 @@ import android.view.MotionEvent;
 import android.view.View;
 
 public class PaletteColorPicker extends View implements ColorPicker {
+	int[] hueList = { 0, 30, 60, 120, 180, 210, 270, 330 };
+	private int size = 5;
+	private int hues = hueList.length;
+	private int[][] mSwatchColors;
+	private Path mPath;
+	private ColorListener mListener;
+	private Path mStartPath;
+	private Path mEndPath;
+
 
 	public PaletteColorPicker(Context context) {
 		super(context);
@@ -34,6 +43,9 @@ public class PaletteColorPicker extends View implements ColorPicker {
 
 	private int current;
 	private Bitmap cache;
+	private Path mPath2;
+	private Path mEndPath2;
+	private Path mStartPath2;
 	public boolean onTouchEvent(MotionEvent event) {
 		if (event.getActionMasked() == MotionEvent.ACTION_UP) {
 			return false;
@@ -92,15 +104,6 @@ public class PaletteColorPicker extends View implements ColorPicker {
 		canvas.restoreToCount(save);
 	}
 
-	int[] hueList = { 0, 30, 60, 120, 180, 210, 270, 330 };
-	private int size = 5;
-	private int hues = hueList.length;
-	private int[][] mSwatchColors;
-	private Path mPath;
-	private ColorListener mListener;
-	private Path mStartPath;
-	private Path mEndPath;
-
 	private int[][] getSwatchColors() {
 		if (mSwatchColors != null)
 			return mSwatchColors;
@@ -140,15 +143,30 @@ public class PaletteColorPicker extends View implements ColorPicker {
 
 		int[][] colors = getSwatchColors();
 		Path path = null;
-		if (row == 0) path = getStartPath(w-border, h-border);
-		else if (row == colors.length -1) path = getEndPath(w-border,h-border);
-		else path = getPath(w-border, h-border);
+		if (row == 0) {
+			if (col %2 == 0) path = getStartPath(w-border, h-border);
+			else path = getStartPath2(w-border, h-border);
+		} else if (row == colors.length -1) {
+			if (col %2 == 0) path = getEndPath(w-border,h-border);
+			else path = getEndPath2(w-border,h-border);
+		} else {
+			if (col %2 == 0) path = getPath(w-border, h-border);
+			else path = getPath2(w-border, h-border);
+		}
 
 		canvas.drawPath(path, p);
+		if (color == Color.WHITE) {
+			p.setStyle(Paint.Style.STROKE);
+			p.setColor(Color.BLACK);
+			p.setStrokeWidth(1);
+			canvas.drawPath(path, p);			
+		}
 
 		if (getColor() == color) {
 			p.setStrokeJoin(Join.ROUND);
-			p.setColor(Color.BLACK);		
+			float[] hsv = new float[3];
+			Color.colorToHSV(color, hsv);
+			p.setColor(hsv[2] > 0.5 ? Color.DKGRAY : Color.LTGRAY);
 			p.setStyle(Paint.Style.STROKE);
 			p.setStrokeWidth(border*2);
 			canvas.drawPath(path, p);
@@ -169,7 +187,21 @@ public class PaletteColorPicker extends View implements ColorPicker {
 		mStartPath.close();
 		return mStartPath;
 	}
-	
+
+	private Path getStartPath2(float w, float h) {
+		if (mStartPath2 != null)
+			return mStartPath2;
+		mStartPath2 = new Path();
+		mStartPath2.moveTo(0.0f, 0.0f);
+		mStartPath2.lineTo(w, 0);
+		mStartPath2.lineTo(w, h);
+		mStartPath2.lineTo(w/2, h*0.75f);
+		mStartPath2.lineTo(0, h);
+		mStartPath2.lineTo(0, 0);
+		mStartPath2.close();
+		return mStartPath2;
+	}
+
 	private Path getEndPath(float w, float h) {
 		if (mEndPath != null)
 			return mEndPath;
@@ -184,6 +216,20 @@ public class PaletteColorPicker extends View implements ColorPicker {
 		return mEndPath;
 	}
 	
+	private Path getEndPath2(float w, float h) {
+		if (mEndPath2 != null)
+			return mEndPath2;
+		mEndPath2 = new Path();
+		mEndPath2.moveTo(0.0f, 0.0f);
+		mEndPath2.lineTo(w/2, h*-0.25f);
+		mEndPath2.lineTo(w, 0);
+		mEndPath2.lineTo(w, h);
+		mEndPath2.lineTo(0, h);
+		mEndPath2.lineTo(0, 0);
+		mEndPath2.close();
+		return mEndPath2;
+	}
+
 	private Path getPath(float w, float h) {
 		if (mPath != null)
 			return mPath;
@@ -199,6 +245,21 @@ public class PaletteColorPicker extends View implements ColorPicker {
 		return mPath;
 	}
 
+	private Path getPath2(float w, float h) {
+		if (mPath2 != null)
+			return mPath2;
+		mPath2 = new Path();
+		mPath2.moveTo(0.0f, 0.0f);
+		mPath2.lineTo(w/2, h*-0.25f);
+		mPath2.lineTo(w, 0);
+		mPath2.lineTo(w, h);
+		mPath2.lineTo(w/2, h*0.75f);
+		mPath2.lineTo(0, h);
+		mPath2.lineTo(0, 0);
+		mPath2.close();
+		return mPath2;
+	}
+	
 	public int getColor() {
 		return current;
 	}

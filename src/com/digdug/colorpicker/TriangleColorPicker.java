@@ -13,8 +13,6 @@ import android.view.MotionEvent;
 import android.view.View;
 
 public class TriangleColorPicker extends View implements ColorPicker {
-
-	private static final float MARGIN = 20;
 	private static final float WIDTH = 40;
 	private Paint mOuterPaint;
 	private float mHue = 0;
@@ -27,8 +25,24 @@ public class TriangleColorPicker extends View implements ColorPicker {
 	private float mSat = 1.0f;
 	HoverObj dragging = HoverObj.NOTHING;
 	private int r;
-	int[] hueList = { 0, 30, 60, 120, 180, 210, 240, 270, 330 };
+	/*
+	int[] hueList = { Color.HSVToColor(new float[] { 0, 1.0f, 1.0f }),
+			Color.HSVToColor(new float[] { 30, 1.0f, 1.0f }),
+			Color.HSVToColor(new float[] { 60, 1.0f, 1.0f }),
+			Color.HSVToColor(new float[] { 120, 1.0f, 1.0f }),
+			Color.HSVToColor(new float[] { 180, 1.0f, 1.0f }),
+			Color.HSVToColor(new float[] { 210, 1.0f, 1.0f }),
+			Color.HSVToColor(new float[] { 270, 1.0f, 1.0f }),
+			Color.HSVToColor(new float[] { 330, 1.0f, 1.0f }) };
+	*/
+	int[] hueList = new int[] { 0xFFFF0000, 0xFFFFFF00, 0xFF00FF00, 0xFF00FFFF, 0xFF0000FF, 0xFFFF00FF, 0xFFFF0000 };
+	
 	private ColorListener mListener;
+	private int fontSize = 40;
+
+	public void setFontSize(int size) {
+		fontSize = size;
+	}
 
 	public TriangleColorPicker(Context context) {
 		super(context);
@@ -74,7 +88,6 @@ public class TriangleColorPicker extends View implements ColorPicker {
 
 				synchronized(hsv) {
 					Color.colorToHSV(c, hsv);
-					//setHue(hsv[0]);
 					setSat(hsv[1]);
 					setVal(hsv[2]);
 					invalidate();
@@ -114,15 +127,12 @@ public class TriangleColorPicker extends View implements ColorPicker {
 		m.mapPoints(pt);
 
 		float[] verts = getVerts(c[0], c[1], r);
-		// if x < left side, move x to the edge
 		if (pt[0] < verts[2]) {
 			pt[0] = verts[2];
 			pt[1] = Math.min(verts[3], Math.max(pt[1], verts[5]));
 		} else if (pt[1] > verts[1])  {
-			// if y > cy, lock to top edge
 			pt[1] = Math.min(verts[3], (verts[3] - verts[1])/(verts[2]-verts[0])*(pt[0] - verts[0]) + verts[1]);
 		} else if (y < verts[1]) {
-			// if y < cy, lock to bottom edge
 			pt[1] = Math.max(verts[5], (verts[5] - verts[1])/(verts[4]-verts[0])*(pt[0] - verts[0]) + verts[1]);
 		}
 
@@ -155,7 +165,7 @@ public class TriangleColorPicker extends View implements ColorPicker {
 		float dy = y - center[1];
 		float r  = getRadius();
 
-		if (Math.sqrt(dx*dx + dy*dy) > r - WIDTH/2) {
+		if (Math.sqrt(dx*dx + dy*dy) > r - fontSize) {
 			dragging = HoverObj.RING;
 		} else {
 			dragging = HoverObj.CENTER;
@@ -167,8 +177,10 @@ public class TriangleColorPicker extends View implements ColorPicker {
 	private float getRadius() {
 		if (r > 0)
 			return r;
-		r = Math.min(getWidth(), getHeight())/2;
-		r -= (MARGIN + WIDTH/2);
+		int w = getWidth() - getPaddingLeft() - getPaddingRight();
+		int h = getHeight() - getPaddingTop() - getPaddingBottom();
+		r = Math.min(w, h)/2;
+		r -= (getPaddingLeft() + fontSize);
 		return r;
 	}
 
@@ -191,6 +203,14 @@ public class TriangleColorPicker extends View implements ColorPicker {
 			if (h < 0) h = 360 + h;
 		}
 		return h;
+		/*
+		h = h/360*hueList.length;
+		float[] hsv1 = new float[3];
+		float[] hsv2 = new float[3];
+		Color.colorToHSV((int) Math.floor(h), hsv1);
+		Color.colorToHSV((int) Math.ceil(h), hsv2);
+		return (float) ((hsv2[0] - hsv1[0])*(h - Math.floor(h)));
+		*/
 	}
 
 	private Paint getOuterPaint(float cx, float cy) {
@@ -201,7 +221,7 @@ public class TriangleColorPicker extends View implements ColorPicker {
 		mOuterPaint.setStyle(Paint.Style.STROKE);
 		mOuterPaint.setStrokeWidth(WIDTH);
 		mOuterPaint.setShader(new SweepGradient(cx, cy,
-				new int[] { 0xFFFF0000, 0xFFFFFF00, 0xFF00FF00, 0xFF00FFFF, 0xFF0000FF, 0xFFFF00FF, 0xFFFF0000 },
+				hueList,
 				null));
 		return mOuterPaint;
 	}

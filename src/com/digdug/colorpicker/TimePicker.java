@@ -12,7 +12,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.os.SystemClock;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AnticipateInterpolator;
@@ -33,7 +32,7 @@ public class TimePicker extends View {
 		public layoutParams(int w, int h, int fontSize) {
 			cx = w/2f;
 			cy = h/2f;
-			r = Math.min(cx, cy) - Math.max(getPaddingLeft() + getPaddingRight(), getPaddingTop() + getPaddingBottom());
+			r = Math.min(cx, cy) - Math.max(getPaddingLeft() + getPaddingRight(), getPaddingTop() + getPaddingBottom()) - fontSize*2;
 			this.fontSize = fontSize;
 		}
 	}
@@ -110,12 +109,12 @@ public class TimePicker extends View {
 				return;
 
 			if (cache == null) {
-				float r = params.r + params.fontSize;
-				cache = Bitmap.createBitmap((int)(r*2f), (int)(r*2f), Bitmap.Config.ARGB_8888);
+				float r = params.r;
+				cache = Bitmap.createBitmap((int)((r+2*fontSize)*2f), (int)((r+2*fontSize)*2f), Bitmap.Config.ARGB_8888);
 				Canvas c = new Canvas(cache);
 
 				int save2 = c.save();
-				c.translate(r, r);
+				c.translate(r+2*fontSize, r+2*fontSize);
 				drawNumbers(c, params, paint);
 				c.restoreToCount(save2);
 			}
@@ -129,7 +128,6 @@ public class TimePicker extends View {
 			} else {
 				paint.setAlpha(255);
 			}
-			Log.i("WESJ", "Alpha " + name + ": " + paint.getAlpha() + " for " + animating);
 			drawHighlight(canvas, params, paint);
 			canvas.drawBitmap(cache, -1*cache.getWidth()/2, -1*cache.getHeight()/2, paint);
 
@@ -142,7 +140,7 @@ public class TimePicker extends View {
 			indicatorPaint.setColor(indicatorColor);
 
 			Path path = new Path();
-			path.addCircle(0, 0, params.r+params.fontSize, Path.Direction.CW);
+			path.addCircle(0, 0, params.r + 2*params.fontSize, Path.Direction.CW);
 			path.addCircle(0, 0, fontSize, Path.Direction.CCW);
 			canvas.clipPath(path);
 			float angle = getAngleForPosition();

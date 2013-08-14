@@ -222,12 +222,12 @@ public class NumberPicker extends View {
 		int h2 = h;
 
 		if (spec == MeasureSpec.UNSPECIFIED || spec == MeasureSpec.AT_MOST) {
-			w2 = Math.min(w, h);
+			w2 = Math.max(500,Math.min(w, h));
 		}
 
 		spec = MeasureSpec.getMode(heightMeasureSpec);
 		if (spec == MeasureSpec.UNSPECIFIED || spec == MeasureSpec.AT_MOST) {
-			h2 = Math.min(w, h);
+			h2 = Math.max(500, Math.min(w, h));
 		}
 		setMeasuredDimension(w2, h2);
 	}

@@ -9,7 +9,6 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.SweepGradient;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -300,12 +299,12 @@ public class TriangleColorPicker extends View implements ColorPicker {
 		int h2 = h;
 
 		if (spec == MeasureSpec.UNSPECIFIED || spec == MeasureSpec.AT_MOST) {
-			w2 = Math.min(w, h);
+			w2 = Math.max(500, Math.min(w, h));
 		}
 
 		spec = MeasureSpec.getMode(heightMeasureSpec);
 		if (spec == MeasureSpec.UNSPECIFIED || spec == MeasureSpec.AT_MOST) {
-			h2 = Math.min(w, h);
+			h2 = Math.max(500, Math.min(w, h));
 		}
 		setMeasuredDimension(w2, h2);
 	}

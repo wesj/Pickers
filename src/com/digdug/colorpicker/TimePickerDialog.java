@@ -1,94 +1,50 @@
 package com.digdug.colorpicker;
 
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import com.digdug.colorpicker.TimePicker.Mode;
-
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Color;
-import android.graphics.Typeface;
-import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
-import android.view.Gravity;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.TableLayout.LayoutParams;
 
-public class TimePickerDialog extends AlertDialog implements TimePicker.TimeChangeListener {
+public class TimePickerDialog extends DialogBase implements TimePicker.TimeChangeListener {
 	private TimePicker tp;
-	private LinearLayout linear;
-	private TextView tv;
-	private int textColor;
 	
 	public TimePickerDialog(Context context) {
 		super(context);
-		init(context);
 	}
 
-	public TimePickerDialog(Context context, int theme) {
-		super(context, theme);
-		init(context);
-	}
+	protected void init(Context context) {
+		super.init(context);
 
-	public TimePickerDialog(Context context, boolean cancelable,
-			OnCancelListener cancelListener) {
-		super(context, cancelable, cancelListener);
-		init(context);
-	}
-
-	private void init(Context context) {
-		textColor = context.getResources().getColor(android.R.color.holo_blue_dark);
-		linear = new LinearLayout(context);
-		linear.setOrientation(LinearLayout.VERTICAL);
-		linear.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-		linear.setGravity(Gravity.CENTER);
-	
-		tv = new TextView(context);
-		tv.setTextSize(40);
-		tv.setLinksClickable(true);
-		tv.setGravity(Gravity.CENTER_HORIZONTAL);
-		tv.setTextColor(textColor);
 		tv.setHighlightColor(Color.TRANSPARENT);
+		tv.setLinksClickable(true);
 		tv.setMovementMethod(LinkMovementMethod.getInstance());
-		tv.setPadding(10, 10, 10, 10);
-		tv.setTypeface(Typeface.DEFAULT);
-		linear.addView(tv);
-	
-		ImageView separator = new ImageView(context);
-		separator.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-		separator.setPadding(0, 5, 0, 0);
-		LayoutParams lp = new LayoutParams();
-		lp.setMargins(0, 5, 0, 5);
-		separator.setLayoutParams(lp);
-		separator.setBackgroundColor(textColor);
-		linear.addView(separator);
 
 		tp = new TimePicker(context);
-		tp.setPadding(30, 0, 30, 0);
 		tp.setIndicatorColor(textColor);
 		linear.addView(tp);
-	
-		setView(linear);
-	
+
 		tp.setTimeChangeListener(this);
 		onTimeChange(12,0);
 	}
 
+	public void setTime(Calendar cal) {
+		setTime(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
+	}
+
 	public void setTime(int hours, int minutes) {
 		tp.setTime(hours, minutes);
+		onTimeChange(hours, minutes);
 	}
 	
-	public GregorianCalendar getTime() {
+	public Calendar getTime() {
 		return tp.getTime();
 	}
 
@@ -133,16 +89,6 @@ public class TimePickerDialog extends AlertDialog implements TimePicker.TimeChan
 			}
 		}, 6, 8, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 		tv.setText(b);
-	}
-
-	public void onClick(DialogInterface dialog, int which) {
-	}
-
-	public void onRestoreInstanceState(Bundle savedInstanceState) {
-	}
-
-	public Bundle onSaveInstanceState() {
-		return null;
 	}
 
 	public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {

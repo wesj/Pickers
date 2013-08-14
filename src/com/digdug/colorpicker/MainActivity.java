@@ -1,67 +1,42 @@
 package com.digdug.colorpicker;
 
-import java.util.Calendar;
 import java.util.GregorianCalendar;
-
-import com.digdug.colorpicker.TimePicker.Mode;
 
 import android.os.Bundle;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
-import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
 import android.text.format.DateFormat;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.TableLayout.LayoutParams;
 
 public class MainActivity extends Activity {
 
-	private class ClickSpan extends ClickableSpan {
-		private TimePicker picker;
-		private Mode mode;
-
-		public ClickSpan(TimePicker picker, TimePicker.Mode mode) {
-			this.picker = picker;
-			this.mode = mode;
-		}
-
-		@Override
-	    public void onClick(View widget) {
-			picker.setMode(mode);
-	    }		
-	}
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
 		final TextView text = (TextView)findViewById(R.id.time);
+		final String ok = getResources().getString(android.R.string.ok);
 
 		Button button = (Button)findViewById(R.id.timePickerButton);
 		button.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				final TimePickerDialog dialog = new TimePickerDialog(MainActivity.this);
-				dialog.setButton(Dialog.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
+				dialog.setButton(Dialog.BUTTON_POSITIVE, ok, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialogInterface, int which) {
 						CharSequence format = DateFormat.format("hh:mm aa", dialog.getTime());
 						text.setText(format);
 					}
 				});
+				dialog.setTime(new GregorianCalendar());
 				dialog.show();
 			}
 		});
@@ -71,7 +46,7 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				final ColorPickerDialog dialog = new ColorPickerDialog(MainActivity.this);
-				dialog.setButton(Dialog.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
+				dialog.setButton(Dialog.BUTTON_POSITIVE, ok, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialogInterface, int which) {
 						int color = dialog.getColor();
@@ -89,11 +64,11 @@ public class MainActivity extends Activity {
 			public void onClick(View v) {
 				final ColorPickerDialog dialog = new ColorPickerDialog(MainActivity.this);
 				dialog.setMode(ColorPickerDialog.Mode.PALETTE);
-				dialog.setButton(Dialog.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
+				dialog.setButton(Dialog.BUTTON_POSITIVE, ok, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialogInterface, int which) {
 						int color = dialog.getColor();
-						text.setText(ColorPickerDialog.getColorString(color));
+						text.setText(dialog.getColorString(color));
 						text.setTextColor(color);
 					}
 				});
@@ -107,7 +82,7 @@ public class MainActivity extends Activity {
 			public void onClick(View v) {
 				final NumberPickerDialog dialog = new NumberPickerDialog(MainActivity.this);
 				dialog.setRange(0, 100, 10);
-				dialog.setButton(Dialog.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
+				dialog.setButton(Dialog.BUTTON_POSITIVE, ok, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialogInterface, int which) {
 						text.setText(Integer.toString(dialog.getValue()));
@@ -122,10 +97,10 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				final DatePickerDialog dialog = new DatePickerDialog(MainActivity.this);
-				dialog.setButton(Dialog.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
+				dialog.setButton(Dialog.BUTTON_POSITIVE, ok, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialogInterface, int which) {
-						text.setText(DatePickerDialog.buildString(dialog.getDate()));
+						text.setText(dialog.buildString(dialog.getDate()));
 					}
 				});
 				dialog.show();

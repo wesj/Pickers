@@ -11,11 +11,9 @@ import android.graphics.Paint;
 import android.os.AsyncTask;
 import android.os.SystemClock;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
-import android.view.ViewGroup.MarginLayoutParams;
 
 public class DatePicker extends View {
 
@@ -443,12 +441,12 @@ public class DatePicker extends View {
 		int h2 = h;
 
 		if (spec == MeasureSpec.UNSPECIFIED || spec == MeasureSpec.AT_MOST) {
-			w2 = Math.min(w, h);
+			w2 = Math.max(500,Math.min(w, h));
 		}
 
 		spec = MeasureSpec.getMode(heightMeasureSpec);
 		if (spec == MeasureSpec.UNSPECIFIED || spec == MeasureSpec.AT_MOST) {
-			h2 = Math.min(w, h);
+			h2 = Math.max(500, Math.min(w, h));
 		}
 		setMeasuredDimension(w2, h2);
 	}

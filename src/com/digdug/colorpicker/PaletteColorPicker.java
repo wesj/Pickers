@@ -7,11 +7,9 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Join;
 import android.graphics.Path;
-import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.MeasureSpec;
 
 public class PaletteColorPicker extends View implements ColorPicker {
 
@@ -94,8 +92,6 @@ public class PaletteColorPicker extends View implements ColorPicker {
 		canvas.restoreToCount(save);
 	}
 
-	private int MARGIN_Y = 1;
-	private int MARGIN_X = 1;
 	int[] hueList = { 0, 30, 60, 120, 180, 210, 270, 330 };
 	private int size = 5;
 	private int hues = hueList.length;
@@ -221,12 +217,12 @@ public class PaletteColorPicker extends View implements ColorPicker {
 		int h2 = h;
 
 		if (spec == MeasureSpec.UNSPECIFIED || spec == MeasureSpec.AT_MOST) {
-			w2 = Math.min(w, h);
+			w2 = Math.max(500, Math.min(w, h));
 		}
 
 		spec = MeasureSpec.getMode(heightMeasureSpec);
 		if (spec == MeasureSpec.UNSPECIFIED || spec == MeasureSpec.AT_MOST) {
-			h2 = Math.min(w, h);
+			h2 = Math.max(500, Math.min(w, h));
 		}
 		setMeasuredDimension(w2, h2);
 	}

@@ -1,5 +1,6 @@
 package com.digdug.colorpicker;
 
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import android.animation.TimeInterpolator;
@@ -18,8 +19,9 @@ import android.view.animation.AnticipateInterpolator;
 
 public class TimePicker extends View {
 
+	private static final String PM = "PM";
+	private static final String AM = "AM";
 	private int fontColor = 0xFF999999;
-	private static int MARGIN = 40;
 	private int fontSize = 40;
 	private MotionEvent mDragging;
 	private layoutParams mLayoutParams;
@@ -27,15 +29,11 @@ public class TimePicker extends View {
 		float cx;
 		float cy;
 		float r;
-		int w;
-		int h;
 		int fontSize;
 		public layoutParams(int w, int h, int fontSize) {
-			this.w = w;
-			this.h = h;
 			cx = w/2f;
 			cy = h/2f;
-			r = Math.min(cx, cy) - MARGIN - Math.max(getPaddingLeft() + getPaddingRight(), getPaddingTop() + getPaddingBottom());
+			r = Math.min(cx, cy) - Math.max(getPaddingLeft() + getPaddingRight(), getPaddingTop() + getPaddingBottom());
 			this.fontSize = fontSize;
 		}
 	}
@@ -43,6 +41,17 @@ public class TimePicker extends View {
 	public void setFontSize(int size) {
 		fontSize = size;
 		mLayoutParams = null;
+		HOURS_MODE.cache = null;
+		MINUTES_MODE.cache = null;
+		invalidate();
+	}
+
+	public void setTextColor(int color) {
+		fontColor = color;
+		mLayoutParams = null;
+		HOURS_MODE.cache = null;
+		MINUTES_MODE.cache = null;
+		invalidate();
 	}
 
 	Mode currentMode;
@@ -273,7 +282,7 @@ public class TimePicker extends View {
 					toggleState();
 				} else if (currentMode.setVal(findHover(e.getX(), e.getY()))) {
 					if (mTimeChangeListener != null) {
-						mTimeChangeListener.onTimeChange("AM".equals(partOfDay) ? HOURS_MODE.val : HOURS_MODE.val + 12, MINUTES_MODE.val);
+						mTimeChangeListener.onTimeChange(AM.equals(partOfDay) ? HOURS_MODE.val : HOURS_MODE.val + 12, MINUTES_MODE.val);
 					}
 					invalidate();
 					if (currentMode == HOURS_MODE)
@@ -283,7 +292,7 @@ public class TimePicker extends View {
 				if (currentMode == HOURS_MODE)
 					flipMode();
 				if (mTimeChangeListener != null) {
-					mTimeChangeListener.onTimeChange("AM".equals(partOfDay) ? HOURS_MODE.val : HOURS_MODE.val + 12, MINUTES_MODE.val);
+					mTimeChangeListener.onTimeChange(AM.equals(partOfDay) ? HOURS_MODE.val : HOURS_MODE.val + 12, MINUTES_MODE.val);
 				}
 			}
 			mDragging.recycle();
@@ -297,7 +306,7 @@ public class TimePicker extends View {
 			}
 			if (currentMode.setVal(findHover(e.getX(), e.getY()))) {
 				if (mTimeChangeListener != null) {
-					mTimeChangeListener.onTimeChange("AM".equals(partOfDay) ? HOURS_MODE.val : HOURS_MODE.val + 12, MINUTES_MODE.val);
+					mTimeChangeListener.onTimeChange(AM.equals(partOfDay) ? HOURS_MODE.val : HOURS_MODE.val + 12, MINUTES_MODE.val);
 				}
 				invalidate();
 			}
@@ -363,16 +372,12 @@ public class TimePicker extends View {
 			currentMode.draw(canvas, mLayoutParams, basePaint);
 		}
 
-		//Paint p2 = new Paint();
-		//p2.setColor(Color.WHITE);
-		//canvas.drawCircle(0, 0, 40, p2);
-
 		if (mAnimatingAM > -1f) {
-			if ("AM".equals(partOfDay)) {
-				drawAM(canvas,  "PM",     interp(1f, 0f, mAnimatingAM), (int)((1f - mAnimatingAM)*255f));
+			if (AM.equals(partOfDay)) {
+				drawAM(canvas,  PM,     interp(1f, 0f, mAnimatingAM), (int)((1f - mAnimatingAM)*255f));
 				drawAM(canvas, partOfDay, interp(2f, 1f, mAnimatingAM), (int) (mAnimatingAM*255f));
 			} else {
-				drawAM(canvas, "AM",      interp(1f, 2f, mAnimatingAM), (int)((1f - mAnimatingAM)*255f));
+				drawAM(canvas, AM,      interp(1f, 2f, mAnimatingAM), (int)((1f - mAnimatingAM)*255f));
 				drawAM(canvas, partOfDay, interp(0f, 1f, mAnimatingAM), (int) (mAnimatingAM*255f));				
 			}
 		} else {
@@ -386,10 +391,9 @@ public class TimePicker extends View {
 		return start + (end-start)*t;
 	}
 
-	private String partOfDay = "AM";
+	private String partOfDay = AM;
 	private void drawAM(Canvas canvas, String txt, float scale, int alpha) {
 		int save = canvas.save();
-		//Log.i("WESJ", "Scale " + scale + ", " + alpha);
 		canvas.scale(scale, scale);
 
 		Paint p = new Paint();
@@ -419,14 +423,13 @@ public class TimePicker extends View {
 		int w = getMeasuredWidth();
 		int w2 = w;
 		int h2 = h;
-
 		if (spec == MeasureSpec.UNSPECIFIED || spec == MeasureSpec.AT_MOST) {
-			w2 = Math.min(w, h);
+			w2 = Math.max(500, Math.min(w, h));
 		}
 
 		spec = MeasureSpec.getMode(heightMeasureSpec);
 		if (spec == MeasureSpec.UNSPECIFIED || spec == MeasureSpec.AT_MOST) {
-			h2 = Math.min(w, h);
+			h2 = Math.max(500, Math.min(w, h));
 		}
 		setMeasuredDimension(w2, h2);
 	}
@@ -439,17 +442,18 @@ public class TimePicker extends View {
 
 	public void setTime(int hours, int minutes) {
 		HOURS_MODE.setVal(hours);
+		partOfDay = hours >= 12 ? PM : AM;
 		MINUTES_MODE.setVal(minutes);
 	}
 
-	public GregorianCalendar getTime() {
+	public Calendar getTime() {
 		return new GregorianCalendar(2000, 1, 1, HOURS_MODE.val, MINUTES_MODE.val, 0);
 	}
 	
 	public void toggleState() {
-		partOfDay = "AM".equals(partOfDay) ? "PM" : "AM";
+		partOfDay = AM.equals(partOfDay) ? PM : AM;
 		if (mTimeChangeListener != null) {
-			mTimeChangeListener.onTimeChange("AM".equals(partOfDay) ? HOURS_MODE.val : HOURS_MODE.val + 12, MINUTES_MODE.val);
+			mTimeChangeListener.onTimeChange(AM.equals(partOfDay) ? HOURS_MODE.val : HOURS_MODE.val + 12, MINUTES_MODE.val);
 		}
 		post(mAMRunnable);
 	}
@@ -457,5 +461,8 @@ public class TimePicker extends View {
 	public void setIndicatorColor(int textColor) {
 		indicatorColor = textColor;
 	}
-	
+
+	public int getMinimumHeight() {
+		return 500;
+	}
 }

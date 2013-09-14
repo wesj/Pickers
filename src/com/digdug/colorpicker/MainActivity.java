@@ -1,18 +1,18 @@
 package com.digdug.colorpicker;
 
-import java.util.GregorianCalendar;
-
-import android.os.Bundle;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+
+import java.util.GregorianCalendar;
 
 public class MainActivity extends Activity {
 
@@ -57,6 +57,24 @@ public class MainActivity extends Activity {
 				dialog.show();
 			}
 		});
+
+        button = (Button)findViewById(R.id.colorButton3);
+        button.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final ColorPickerDialog dialog = new ColorPickerDialog(MainActivity.this);
+                dialog.setMode(ColorPickerDialog.Mode.TAB);
+                dialog.setButton(Dialog.BUTTON_POSITIVE, ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int which) {
+                        int color = dialog.getColor();
+                        text.setText("Color: " + Color.red(color) + "," + Color.green(color) + "," + Color.blue(color));
+                        text.setTextColor(color);
+                    }
+                });
+                dialog.show();
+            }
+        });
 
 		button = (Button)findViewById(R.id.colorButton2);
 		button.setOnClickListener(new OnClickListener() {

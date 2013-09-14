@@ -1,8 +1,11 @@
 package com.digdug.colorpicker;
 
-import com.digdug.colorpicker.NumberPicker.NumberChangeListener;
-
 import android.content.Context;
+import android.graphics.Typeface;
+import android.view.View;
+import android.widget.TextView;
+
+import com.digdug.colorpicker.NumberPicker.NumberChangeListener;
 
 public class NumberPickerDialog extends DialogBase implements NumberChangeListener {
 
@@ -12,12 +15,31 @@ public class NumberPickerDialog extends DialogBase implements NumberChangeListen
 		super(context);
 	}
 
+    @Override
+    public void setCustomTitle(View v) {
+        if (v != null) {
+            tv = null;
+            super.setCustomTitle(v);
+            return;
+        }
+
+        tv = new TextView(getContext());
+        tv.setTextSize(20);
+        tv.setPadding(20, 10, 20, 10);
+        tv.setTypeface(Typeface.DEFAULT);
+        tv.setTextColor(textColor);
+
+        super.setCustomTitle(tv);
+    }
+
 	protected void init(Context context) {
 		super.init(context);
 		np = new NumberPicker(context);
 		np.setListener(this);
+        setView(np);
+
+        setCustomTitle(null);
 		onChange(0);
-		linear.addView(np);
 	}
 
 	@Override

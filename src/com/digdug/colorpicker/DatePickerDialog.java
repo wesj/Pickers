@@ -1,10 +1,10 @@
 package com.digdug.colorpicker;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-
 import android.content.Context;
 import android.text.format.DateFormat;
+
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 public class DatePickerDialog extends DialogBase implements DatePicker.DateChangeListener {
 
@@ -19,7 +19,7 @@ public class DatePickerDialog extends DialogBase implements DatePicker.DateChang
 		dp = new DatePicker(context);
 		dp.setListener(this);
 		onChange(new GregorianCalendar());
-		linear.addView(dp);
+		setView(dp);
 	}
 
 	public Calendar getDate() {
@@ -27,7 +27,8 @@ public class DatePickerDialog extends DialogBase implements DatePicker.DateChang
 	}
 
 	public void onChange(Calendar cal) {
-		tv.setText(buildString(cal));
+        if (tv != null)
+		    tv.setText(buildString(cal));
 	}
 
 	public CharSequence buildString(Calendar cal) {

@@ -53,7 +53,13 @@
 		    android:gravity="center"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"/>
-	</LinearLayout>	
+
+        <Button android:id="@+id/colorButton3"
+            android:text="Color 3"
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+	</LinearLayout>
 <!-- <com.digdug.colorpicker.DatePicker
 	    android:id="@+id/timepicker"
         android:layout_width="wrap_content"

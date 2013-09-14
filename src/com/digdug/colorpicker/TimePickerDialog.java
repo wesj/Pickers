@@ -1,10 +1,8 @@
 package com.digdug.colorpicker;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextPaint;
@@ -12,6 +10,10 @@ import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.view.View;
+import android.widget.TextView;
+
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 public class TimePickerDialog extends DialogBase implements TimePicker.TimeChangeListener {
 	private TimePicker tp;
@@ -20,8 +22,26 @@ public class TimePickerDialog extends DialogBase implements TimePicker.TimeChang
 		super(context);
 	}
 
+    @Override
+    public void setCustomTitle(View v) {
+        if (v != null) {
+            tv = null;
+            super.setCustomTitle(v);
+            return;
+        }
+
+        tv = new TextView(getContext());
+        tv.setTextSize(20);
+        tv.setPadding(20, 10, 20, 10);
+        tv.setTypeface(Typeface.DEFAULT);
+        tv.setTextColor(textColor);
+
+        super.setCustomTitle(tv);
+    }
+
 	protected void init(Context context) {
 		super.init(context);
+        setCustomTitle(null);
 
 		tv.setHighlightColor(Color.TRANSPARENT);
 		tv.setLinksClickable(true);
@@ -29,7 +49,7 @@ public class TimePickerDialog extends DialogBase implements TimePicker.TimeChang
 
 		tp = new TimePicker(context);
 		tp.setIndicatorColor(textColor);
-		linear.addView(tp);
+		setView(tp);
 
 		tp.setTimeChangeListener(this);
 		onTimeChange(12,0);

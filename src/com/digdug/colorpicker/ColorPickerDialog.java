@@ -18,6 +18,7 @@ public class ColorPickerDialog extends DialogBase implements ColorListener {
 	public static enum Mode {
 		TRIANGLE,
 		PALETTE,
+        SLIDER,
         TAB
 	}
 
@@ -44,6 +45,9 @@ public class ColorPickerDialog extends DialogBase implements ColorListener {
 			case PALETTE:
 				v = new PaletteColorPicker(getContext());
 				break;
+            case SLIDER:
+                v = new SliderColorPicker(getContext());
+                break;
             case TAB:
                 v = new MultiColorPicker(getContext());
                 break;
@@ -60,16 +64,18 @@ public class ColorPickerDialog extends DialogBase implements ColorListener {
             return;
         }
 
-        tv = new TextView(getContext());
-        tv.setTextSize(20);
-        tv.setPadding(20, 10, 20, 10);
+        Context context = getContext();
+        tv = new TextView(context, null, android.R.style.TextAppearance_DialogWindowTitle);
+        int s = (int) tv.getTextSize();
+        tv.setTextSize(s);
+        tv.setPadding(s, s / 2, s, s / 2);
         tv.setTypeface(Typeface.DEFAULT);
         tv.setTextColor(textColor);
 
         sd = new ShapeDrawable(new RectShape());
-        sd.setBounds(0, 0, 40, 40);
-        sd.setIntrinsicHeight(40);
-        sd.setIntrinsicWidth(40);
+        sd.setBounds(0, 0, s*2, s*2);
+        sd.setIntrinsicHeight(s*2);
+        sd.setIntrinsicWidth(s*2);
         tv.setCompoundDrawables(null, null, sd, null);
 
         super.setCustomTitle(tv);
@@ -92,8 +98,6 @@ public class ColorPickerDialog extends DialogBase implements ColorListener {
 	}
 
 	public CharSequence getColorString(int color) {
-		//if (getOrientation() == Orientation.HORIZONTAL)
-		//	return "R: " + Color.red(color) + "\nG: " + Color.green(color) + "\nB: " + Color.blue(color);
 		return Color.red(color) + ", " + Color.green(color) + ", " + Color.blue(color);
 	}
 }

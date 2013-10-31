@@ -125,6 +125,23 @@ public class MainActivity extends Activity {
 			}
 		});
 
+        button = (Button)findViewById(R.id.openSliderButton);
+        button.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final ColorPickerDialog dialog = new ColorPickerDialog(MainActivity.this);
+                dialog.setMode(ColorPickerDialog.Mode.SLIDER);
+                dialog.setButton(Dialog.BUTTON_POSITIVE, ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int which) {
+                        int color = dialog.getColor();
+                        text.setText(dialog.getColorString(color));
+                        text.setTextColor(color);
+                    }
+                });
+                dialog.show();
+            }
+        });
 	}
 
 	@Override

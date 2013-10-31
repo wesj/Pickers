@@ -1,9 +1,5 @@
 package com.digdug.colorpicker;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.Locale;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -13,11 +9,14 @@ import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
-import android.view.View;
 
-public class DatePicker extends View {
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Locale;
 
-	public interface DateChangeListener {
+public class DatePicker extends ViewBase {
+
+    public interface DateChangeListener {
 		public void onChange(Calendar cal);
 	}
 
@@ -31,20 +30,17 @@ public class DatePicker extends View {
 
 	public DatePicker(Context context) {
 		super(context);
-		init(context);
 	}
 
 	public DatePicker(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		init(context);
 	}
 
 	public DatePicker(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		init(context);
 	}
 
-	private void init(Context context) {
+    protected void init(Context context) {
 		current = new Cal(new GregorianCalendar());
 		selectorPaint = new Paint();
 		calendarPaint = new Paint();
@@ -429,26 +425,6 @@ public class DatePicker extends View {
 	public Calendar getDate() {
 		current.month.set(GregorianCalendar.DATE, current.selectedDate);
 		return current.month;
-	}
-
-	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
-		int spec = MeasureSpec.getMode(widthMeasureSpec);
-		int h = getMeasuredHeight();
-		int w = getMeasuredWidth();
-		int w2 = w;
-		int h2 = h;
-
-		if (spec == MeasureSpec.UNSPECIFIED || spec == MeasureSpec.AT_MOST) {
-			w2 = Math.max(500,Math.min(w, h));
-		}
-
-		spec = MeasureSpec.getMode(heightMeasureSpec);
-		if (spec == MeasureSpec.UNSPECIFIED || spec == MeasureSpec.AT_MOST) {
-			h2 = Math.max(500, Math.min(w, h));
-		}
-		setMeasuredDimension(w2, h2);
 	}
 
 	public DateChangeListener mListener;

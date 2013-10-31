@@ -1,6 +1,8 @@
 package com.digdug.colorpicker;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -33,6 +35,7 @@ public class MultiColorPicker extends TabHost implements ColorPicker,
         init();
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void init() {
         mViews = new HashMap<String, View>();
 
@@ -41,9 +44,21 @@ public class MultiColorPicker extends TabHost implements ColorPicker,
         mLinear.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         addView(mLinear);
 
+        /*
+        Display display = ((WindowManager) getContext().getSystemService(getContext().WINDOW_SERVICE)).getDefaultDisplay();
+        Point p = new Point();
+        display.getSize(p);
+        if (p.x > p.y) {
+            mLinear.setOrientation(LinearLayout.HORIZONTAL);
+        } else {
+            mLinear.setOrientation(LinearLayout.VERTICAL);
+        }
+        */
+
         mTabWidget = new TabWidget(getContext(), null, android.R.style.Widget_Holo_TabWidget);
         mTabWidget.setId(android.R.id.tabs);
-        mTabWidget.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+        // mTabWidget.setOrientation(LinearLayout.VERTICAL);
+        // mTabWidget.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
 
         mContent = new FrameLayout(getContext());
         mContent.setId(android.R.id.tabcontent);
@@ -56,6 +71,7 @@ public class MultiColorPicker extends TabHost implements ColorPicker,
 
         addTab(newTabSpec("triangle").setIndicator("Triangle").setContent(this));
         addTab(newTabSpec("palette").setIndicator("Palette").setContent(this));
+        addTab(newTabSpec("hsv").setIndicator("hsv").setContent(this));
     }
 
     @Override
@@ -78,6 +94,8 @@ public class MultiColorPicker extends TabHost implements ColorPicker,
                 v = new TriangleColorPicker(getContext());
             } else if ("palette".equals(s)) {
                 v = new PaletteColorPicker(getContext());
+            } else if ("hsv".equals(s)) {
+                v = new SliderColorPicker(getContext());
             }
 
             if (v != null) {
@@ -87,6 +105,7 @@ public class MultiColorPicker extends TabHost implements ColorPicker,
             }
         }
 
+        // mViews.get(s).setColor(mCurrent);
         return mViews.get(s);
     }
 

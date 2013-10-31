@@ -8,9 +8,8 @@ import android.graphics.Path;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.view.View;
 
-public class NumberPicker extends View {
+public class NumberPicker extends ViewBase {
 
 	private int fontColor = 0xFF999999;
 	private static int MARGIN = 40;
@@ -117,21 +116,18 @@ public class NumberPicker extends View {
 
 	public NumberPicker(Context context) {
 		super(context);
-		init(context);
 	}
 
 	public NumberPicker(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		init(context);
 	}
 
 	public NumberPicker(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		init(context);
 	}
 
 
-	private void init(Context context) {
+    protected void init(Context context) {
 		indicatorPaint = new Paint();
 		indicatorColor = context.getResources().getColor(android.R.color.holo_blue_bright);
 		basePaint = new Paint();
@@ -210,26 +206,6 @@ public class NumberPicker extends View {
 
 	public void setListener(NumberChangeListener listener) {
 		mListener = listener;
-	}
-
-	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
-		int spec = MeasureSpec.getMode(widthMeasureSpec);
-		int h = getMeasuredHeight();
-		int w = getMeasuredWidth();
-		int w2 = w;
-		int h2 = h;
-
-		if (spec == MeasureSpec.UNSPECIFIED || spec == MeasureSpec.AT_MOST) {
-			w2 = Math.max(500,Math.min(w, h));
-		}
-
-		spec = MeasureSpec.getMode(heightMeasureSpec);
-		if (spec == MeasureSpec.UNSPECIFIED || spec == MeasureSpec.AT_MOST) {
-			h2 = Math.max(500, Math.min(w, h));
-		}
-		setMeasuredDimension(w2, h2);
 	}
 
 	protected void onSizeChanged (int w, int h, int oldw, int oldh) {

@@ -1,8 +1,5 @@
 package com.digdug.colorpicker;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-
 import android.animation.TimeInterpolator;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -13,10 +10,12 @@ import android.graphics.Path;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.animation.AnticipateInterpolator;
 
-public class TimePicker extends View {
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
+public class TimePicker extends ViewBase {
 
 	private static final String PM = "PM";
 	private static final String AM = "AM";
@@ -204,7 +203,7 @@ public class TimePicker extends View {
 			boolean done = updateTimer(mStartSize + (mEndSize - mStartSize)*t);
 			preventDraws = false;
 			invalidate();
-	
+
 			if (done) {
 				start = 0;
 			} else {
@@ -229,7 +228,7 @@ public class TimePicker extends View {
 			return this;
 		}
 	}
-	
+
 	private AnimationRunnable mAMRunnable = new AnimationRunnable(0.0f) {
 		@Override
 		protected boolean updateTimer(float t) {
@@ -249,20 +248,18 @@ public class TimePicker extends View {
 
 	public TimePicker(Context context) {
 		super(context);
-		init(context);
 	}
 
 	public TimePicker(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		init(context);
 	}
 
 	public TimePicker(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		init(context);
 	}
 
-	private void init(Context context) {
+    @Override
+	protected void init(Context context) {
 		currentMode = HOURS_MODE;
 		indicatorColor = context.getResources().getColor(android.R.color.holo_blue_bright);
 		basePaint = new Paint();
@@ -413,25 +410,6 @@ public class TimePicker extends View {
 		mTimeChangeListener = timeChangeListener;
 	}
 
-	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
-		int spec = MeasureSpec.getMode(widthMeasureSpec);
-		int h = getMeasuredHeight();
-		int w = getMeasuredWidth();
-		int w2 = w;
-		int h2 = h;
-		if (spec == MeasureSpec.UNSPECIFIED || spec == MeasureSpec.AT_MOST) {
-			w2 = Math.max(500, Math.min(w, h));
-		}
-
-		spec = MeasureSpec.getMode(heightMeasureSpec);
-		if (spec == MeasureSpec.UNSPECIFIED || spec == MeasureSpec.AT_MOST) {
-			h2 = Math.max(500, Math.min(w, h));
-		}
-		setMeasuredDimension(w2, h2);
-	}
-
 	protected void onSizeChanged (int w, int h, int oldw, int oldh) {
 		mLayoutParams = null;
 		HOURS_MODE.cache = null;
@@ -458,9 +436,5 @@ public class TimePicker extends View {
 
 	public void setIndicatorColor(int textColor) {
 		indicatorColor = textColor;
-	}
-
-	public int getMinimumHeight() {
-		return 500;
 	}
 }

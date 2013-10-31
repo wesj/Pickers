@@ -23,9 +23,10 @@ public class NumberPickerDialog extends DialogBase implements NumberChangeListen
             return;
         }
 
-        tv = new TextView(getContext());
-        tv.setTextSize(20);
-        tv.setPadding(20, 10, 20, 10);
+        tv = new TextView(getContext(), null, android.R.style.TextAppearance_DialogWindowTitle);
+        int s = (int) tv.getTextSize();
+        tv.setTextSize(s);
+        tv.setPadding(s, s / 2, s, s / 2);
         tv.setTypeface(Typeface.DEFAULT);
         tv.setTextColor(textColor);
 

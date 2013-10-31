@@ -30,9 +30,11 @@ public class TimePickerDialog extends DialogBase implements TimePicker.TimeChang
             return;
         }
 
-        tv = new TextView(getContext());
-        tv.setTextSize(20);
-        tv.setPadding(20, 10, 20, 10);
+        Context context = getContext();
+        tv = new TextView(context, null, android.R.style.TextAppearance_DialogWindowTitle);
+        int s = (int) tv.getTextSize();
+        tv.setTextSize(s);
+        tv.setPadding(s, s/2, s, s/2);
         tv.setTypeface(Typeface.DEFAULT);
         tv.setTextColor(textColor);
 

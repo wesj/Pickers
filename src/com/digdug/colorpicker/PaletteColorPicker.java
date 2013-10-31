@@ -11,7 +11,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-public class PaletteColorPicker extends View implements ColorPicker {
+public class PaletteColorPicker extends ViewBase implements ColorPicker {
 	int[] hueList = { 0, 30, 60, 120, 180, 210, 270, 330 };
 	private int size = 5;
 	private int hues = hueList.length;
@@ -24,20 +24,17 @@ public class PaletteColorPicker extends View implements ColorPicker {
 
 	public PaletteColorPicker(Context context) {
 		super(context);
-		init();
 	}
 
 	public PaletteColorPicker(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		init();
 	}
 
 	public PaletteColorPicker(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		init();
 	}
 
-	private void init() {
+    protected void init(Context context) {
 		setLayerType(View.LAYER_TYPE_SOFTWARE, null);		
 	}
 
@@ -268,26 +265,6 @@ public class PaletteColorPicker extends View implements ColorPicker {
 		invalidate();
 	}
 
-	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
-		int spec = MeasureSpec.getMode(widthMeasureSpec);
-		int h = getMeasuredHeight();
-		int w = getMeasuredWidth();
-		int w2 = w;
-		int h2 = h;
-
-		if (spec == MeasureSpec.UNSPECIFIED || spec == MeasureSpec.AT_MOST) {
-			w2 = Math.max(500, Math.min(w, h));
-		}
-
-		spec = MeasureSpec.getMode(heightMeasureSpec);
-		if (spec == MeasureSpec.UNSPECIFIED || spec == MeasureSpec.AT_MOST) {
-			h2 = Math.max(500, Math.min(w, h));
-		}
-		setMeasuredDimension(w2, h2);
-	}
-	
 	private void notifyListeners(int color) {
 		if (mListener == null)
 			return;

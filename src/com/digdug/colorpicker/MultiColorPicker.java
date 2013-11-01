@@ -2,6 +2,7 @@ package com.digdug.colorpicker;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
@@ -71,10 +72,11 @@ public class MultiColorPicker extends TabHost implements ColorPicker,
 
         setup();
 
-        addTab(newTabSpec("triangle").setIndicator("TRI").setContent(this));
-        addTab(newTabSpec("palette").setIndicator("PAL").setContent(this));
-        addTab(newTabSpec("hsv").setIndicator("hsv").setContent(this));
-        addTab(newTabSpec("rgb").setIndicator("rgb").setContent(this));
+        Resources res = getContext().getResources();
+        addTab(newTabSpec("triangle").setIndicator("", res.getDrawable(R.drawable.triangle)).setContent(this));
+        addTab(newTabSpec("palette").setIndicator("", res.getDrawable(R.drawable.palette)).setContent(this));
+        addTab(newTabSpec("hsv").setIndicator("", res.getDrawable(R.drawable.hsv)).setContent(this));
+        addTab(newTabSpec("rgb").setIndicator("", res.getDrawable(R.drawable.rgb)).setContent(this));
     }
 
     @Override

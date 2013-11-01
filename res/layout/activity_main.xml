@@ -62,8 +62,15 @@
 	</LinearLayout>
 
     <Button
-        android:id="@+id/openSliderButton"
-        android:text="SliderPicker"
+        android:id="@+id/hsvButton"
+        android:text="HSV"
+        android:gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/rgbButton"
+        android:text="RGB"
         android:gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />

@@ -18,7 +18,8 @@ public class ColorPickerDialog extends DialogBase implements ColorListener {
 	public static enum Mode {
 		TRIANGLE,
 		PALETTE,
-        SLIDER,
+        HSV,
+        RGB,
         TAB
 	}
 
@@ -45,8 +46,13 @@ public class ColorPickerDialog extends DialogBase implements ColorListener {
 			case PALETTE:
 				v = new PaletteColorPicker(getContext());
 				break;
-            case SLIDER:
+            case HSV:
                 v = new SliderColorPicker(getContext());
+                ((SliderColorPicker)v).setMode(SliderColorPicker.MODE.HSV);
+                break;
+            case RGB:
+                v = new SliderColorPicker(getContext());
+                ((SliderColorPicker)v).setMode(SliderColorPicker.MODE.RGB);
                 break;
             case TAB:
                 v = new MultiColorPicker(getContext());

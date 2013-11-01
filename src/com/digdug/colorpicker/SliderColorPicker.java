@@ -22,9 +22,10 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
     private Bar mBar1;
     private Bar mBar2;
     private Bar mBar3;
-    private MODE mMode;
+    private MODE mMode = MODE.RGB;
     private Drawable mIndicator;
 
+    private int mColor;
     private float[] hsl;
     private static int[] mHueList = new int[] { 0xFFFF0000, 0xFFFFFF00, 0xFF00FF00, 0xFF00FFFF, 0xFF0000FF, 0xFFFF00FF, 0xFFFF0000 };
     private boolean mDragging;
@@ -33,14 +34,20 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
     private float getSat() { return hsl[1]; }
     private float getVal() { return hsl[2]; }
 
+    public int getRed() { return Color.red(mColor); }
+    public int getGreen() { return Color.green(mColor); }
+    public int getBlue() { return Color.blue(mColor); }
+
     public enum MODE {
         RGB,
-        HSL
+        HSV
     }
 
     public MODE getMode() { return mMode; }
     public void setMode(MODE mode) {
         mMode = mode;
+        setupBars();
+        invalidate();
     }
 
     public SliderColorPicker(Context context) {
@@ -61,23 +68,49 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
     }
 
     public void setColor(int color) {
+        mColor = color;
         Color.colorToHSV(color, hsl);
 
-        mBar1.setVal(hsl[0]/360);
-        mBar2.setVal(hsl[1]);
-        mBar3.setVal(hsl[2]);
+        if (mMode == MODE.HSV) {
+            mBar1.setVal(hsl[0] / 360f);
+            mBar2.setVal(hsl[1]);
+            mBar3.setVal(hsl[2]);
+        } else {
+            mBar1.setVal(Color.red(color) / 255f);
+            mBar2.setVal(Color.green(color) / 255f);
+            mBar3.setVal(Color.blue(color) / 255f);
+        }
         setupBars();
 
         invalidate();
     }
 
     private void setupBars() {
-        mBar1.setColors(getHueList(getSat(), getVal()));
-        mBar2.setColors(new int[] { Color.HSVToColor(new float[] { getHue(), 0f, getVal() }),
-                Color.HSVToColor(new float[] { getHue(), 1f, getVal() }) });
-        mBar3.setColors(new int[] { Color.HSVToColor(new float[] { getHue(), getSat(), 0f }),
-                Color.HSVToColor(new float[] { getHue(), getSat(), 1f }) });
-
+        if (mBar1 == null || mBar2 == null || mBar3 == null) {
+            if (mMode == MODE.HSV) {
+                mBar1 = new Bar("Hue", getHueList(getSat(), getVal()), getHue()/360);
+                mBar2 = new Bar("Saturation", new int[] { Color.HSVToColor(new float[] { getHue(), 0f, getVal() }),
+                        Color.HSVToColor(new float[] { getHue(), 1f, getVal() }) }, getSat());
+                mBar3 = new Bar("Value", new int[] { Color.HSVToColor(new float[] { getHue(), getSat(), 0f }),
+                        Color.HSVToColor(new float[] { getHue(), getSat(), 1f }) }, getVal());
+            } else {
+                mBar1 = new Bar("Red",   new int[] { Color.rgb(       0, getGreen(), getBlue()), Color.rgb(     255, getGreen(), getBlue())}, getRed()/255);
+                mBar2 = new Bar("Green", new int[] { Color.rgb(getRed(),          0, getBlue()), Color.rgb(getRed(),        255, getBlue())}, getGreen()/255);
+                mBar3 = new Bar("Blue",  new int[] { Color.rgb(getRed(), getGreen(),         0), Color.rgb(getRed(), getGreen(),       255)}, getBlue()/255);
+            }
+        } else {
+            if (mMode == MODE.HSV) {
+                mBar1.setColors(getHueList(getSat(), getVal()));
+                mBar2.setColors(new int[] { Color.HSVToColor(new float[] { getHue(), 0f, getVal() }),
+                                            Color.HSVToColor(new float[] { getHue(), 1f, getVal() }) });
+                mBar3.setColors(new int[] { Color.HSVToColor(new float[] { getHue(), getSat(), 0f }),
+                                            Color.HSVToColor(new float[] { getHue(), getSat(), 1f }) });
+            } else {
+                mBar1.setColors(new int[] { Color.rgb(       0, getGreen(), getBlue()), Color.rgb(     255, getGreen(), getBlue())});
+                mBar2.setColors(new int[] { Color.rgb(getRed(),          0, getBlue()), Color.rgb(getRed(),        255, getBlue())});
+                mBar3.setColors(new int[] { Color.rgb(getRed(), getGreen(),         0), Color.rgb(getRed(), getGreen(),       255)});
+            }
+        }
     }
 
     @Override
@@ -87,16 +120,12 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
 
     @Override
     protected void init(Context context) {
+        mColor = Color.RED;
         hsl = new float[3];
         hsl[0] = 0f;
         hsl[1] = 1f;
         hsl[2] = 1f;
-        mBar1 = new Bar("Hue", getHueList(getSat(), getVal()), getHue()/360);
-        mBar2 = new Bar("Saturation", new int[] { Color.HSVToColor(new float[] { getHue(), 0f, getVal() }),
-                                    Color.HSVToColor(new float[] { getHue(), 1f, getVal() }) }, getSat());
-        mBar3 = new Bar("Value", new int[] { Color.HSVToColor(new float[] { getHue(), getSat(), 0f }),
-                                    Color.HSVToColor(new float[] { getHue(), getSat(), 1f }) }, getVal());
-        Log.i("ColorPicker", getHue() + ", " + getSat() + ", " + getVal());
+        setupBars();
     }
 
     private float getBarHeight() {
@@ -134,6 +163,7 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
             mPaint.setTextSize(mPaint.getTextSize() * 2);
             mColors = colors;
             mPosition = position;
+            Log.i("ColorPicker", "create " + mPosition);
         }
 
         public void draw(Canvas canvas) {
@@ -168,6 +198,7 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
         private void drawIndicator(Canvas canvas) {
             int state = canvas.save();
             canvas.translate(mPosition*(getWidth()-PADDING*2)+PADDING, getBarHeight()/2);
+            Log.i("ColorPicker", "Translate " + mPosition);
 
             if (mIndicator != null) {
                 mIndicator.draw(canvas);
@@ -194,6 +225,7 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
 
         public void setVal(float val) {
             mPosition = val;
+            Log.i("ColorPicker", "set " + mPosition);
         }
 
         public float dragTo(float x, float y) {
@@ -201,6 +233,7 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
             x = Math.min(x, getWidth() - PADDING);
             x -= PADDING;
             mPosition = x/(getWidth() - PADDING*2);
+            Log.i("ColorPicker", "drag " + mPosition);
             return mPosition;
         }
 
@@ -221,17 +254,36 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
 
         if (mDragging) {
             int bar = getBarAt(event.getX(), event.getY());
-            switch(bar) {
-                case 0:
-                    hsl[0] = mBar1.dragTo(event.getX(), event.getY()) * 360;
-                    break;
-                case 1:
-                    hsl[1] = mBar2.dragTo(event.getX(), event.getY());
-                    break;
-                case 2:
-                default:
-                    hsl[2] = mBar3.dragTo(event.getX(), event.getY());
-                    break;
+            if (mMode == MODE.HSV) {
+                switch(bar) {
+                    case 0:
+                        hsl[0] = mBar1.dragTo(event.getX(), event.getY()) * 360;
+                        break;
+                    case 1:
+                        hsl[1] = mBar2.dragTo(event.getX(), event.getY());
+                        break;
+                    case 2:
+                    default:
+                        hsl[2] = mBar3.dragTo(event.getX(), event.getY());
+                        break;
+                }
+                setColor(Color.HSVToColor(hsl));
+            } else {
+                switch(bar) {
+                    case 0:
+                        int r = (int) (mBar1.dragTo(event.getX(), event.getY()) * 255);
+                        setColor(Color.rgb(r, getGreen(), getBlue()));
+                        break;
+                    case 1:
+                        int g = (int) (mBar2.dragTo(event.getX(), event.getY()) * 255);
+                        setColor(Color.rgb(getRed(), g, getBlue()));
+                        break;
+                    case 2:
+                    default:
+                        int b = (int) (mBar3.dragTo(event.getX(), event.getY()) * 255);
+                        setColor(Color.rgb(getRed(), getGreen(), b));
+                        break;
+                }
             }
 
             setupBars();

@@ -71,9 +71,10 @@ public class MultiColorPicker extends TabHost implements ColorPicker,
 
         setup();
 
-        addTab(newTabSpec("triangle").setIndicator("Triangle").setContent(this));
-        addTab(newTabSpec("palette").setIndicator("Palette").setContent(this));
+        addTab(newTabSpec("triangle").setIndicator("TRI").setContent(this));
+        addTab(newTabSpec("palette").setIndicator("PAL").setContent(this));
         addTab(newTabSpec("hsv").setIndicator("hsv").setContent(this));
+        addTab(newTabSpec("rgb").setIndicator("rgb").setContent(this));
     }
 
     @Override
@@ -104,6 +105,10 @@ public class MultiColorPicker extends TabHost implements ColorPicker,
                 v = new PaletteColorPicker(getContext());
             } else if ("hsv".equals(s)) {
                 v = new SliderColorPicker(getContext());
+                ((SliderColorPicker)v).setMode(SliderColorPicker.MODE.HSV);
+            } else if ("rgb".equals(s)) {
+                v = new SliderColorPicker(getContext());
+                ((SliderColorPicker)v).setMode(SliderColorPicker.MODE.RGB);
             }
 
             if (v != null) {

@@ -121,12 +121,24 @@ public class MainActivity extends Activity {
 			}
 		});
 
-        button = (Button)findViewById(R.id.openSliderButton);
+        button = (Button)findViewById(R.id.hsvButton);
         button.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 mDialog = new ColorPickerDialog(MainActivity.this);
-                mDialog.setMode(ColorPickerDialog.Mode.SLIDER);
+                mDialog.setMode(ColorPickerDialog.Mode.HSV);
+                mDialog.setButton(Dialog.BUTTON_POSITIVE, ok, mColorListener);
+                mDialog.setColor(mColor);
+                mDialog.show();
+            }
+        });
+
+        button = (Button)findViewById(R.id.rgbButton);
+        button.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDialog = new ColorPickerDialog(MainActivity.this);
+                mDialog.setMode(ColorPickerDialog.Mode.RGB);
                 mDialog.setButton(Dialog.BUTTON_POSITIVE, ok, mColorListener);
                 mDialog.setColor(mColor);
                 mDialog.show();

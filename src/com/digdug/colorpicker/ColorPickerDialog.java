@@ -85,6 +85,10 @@ public class ColorPickerDialog extends DialogBase implements ColorListener {
 		return v.getColor();
 	}
 
+    public void setColor(int color) {
+        v.setColor(color);
+    }
+
     @Override
 	public void onChange(int color) {
         setTitle(getColorString(color));

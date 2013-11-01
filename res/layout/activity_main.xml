@@ -32,7 +32,7 @@
 	        android:layout_height="wrap_content"/>
 		    
 		<Button android:id="@+id/colorButton1"
-		    android:text="Color 1"
+		    android:text="TrianglePicker"
 		    android:gravity="center"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"/>
@@ -43,7 +43,7 @@
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content">
 	    <Button android:id="@+id/colorButton2"
-		    android:text="Color 2"
+		    android:text="PalettePicker"
 		    android:gravity="center"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"/>
@@ -55,7 +55,7 @@
 	        android:layout_height="wrap_content"/>
 
         <Button android:id="@+id/colorButton3"
-            android:text="Color 3"
+            android:text="MultiPicker"
             android:gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
@@ -63,7 +63,7 @@
 
     <Button
         android:id="@+id/openSliderButton"
-        android:text="Color 4"
+        android:text="SliderPicker"
         android:gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />

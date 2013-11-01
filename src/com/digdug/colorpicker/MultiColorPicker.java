@@ -17,13 +17,14 @@ import java.util.HashMap;
  */
 public class MultiColorPicker extends TabHost implements ColorPicker,
         TabHost.TabContentFactory,
-        ColorPicker.ColorListener  {
+        ColorPicker.ColorListener, TabHost.OnTabChangeListener {
     private ColorPicker mCurrent;
     private ColorListener mListener;
     private TabWidget mTabWidget;
     private FrameLayout mContent;
     private LinearLayout mLinear;
     private HashMap<String, View> mViews;
+    private int mColor;
 
     public MultiColorPicker(Context context) {
         super(context, null);
@@ -37,6 +38,7 @@ public class MultiColorPicker extends TabHost implements ColorPicker,
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void init() {
+        setOnTabChangedListener(this);
         mViews = new HashMap<String, View>();
 
         mLinear = new LinearLayout(getContext());
@@ -76,9 +78,15 @@ public class MultiColorPicker extends TabHost implements ColorPicker,
 
     @Override
     public int getColor() {
+        return mColor;
+    }
+
+    @Override
+    public void setColor(int color) {
+        mColor = color;
+
         if (mCurrent != null)
-            return mCurrent.getColor();
-        return 0;
+            mCurrent.setColor(color);
     }
 
     @Override
@@ -105,13 +113,19 @@ public class MultiColorPicker extends TabHost implements ColorPicker,
             }
         }
 
-        // mViews.get(s).setColor(mCurrent);
         return mViews.get(s);
     }
 
     @Override
     public void onChange(int color) {
+        mColor = color;
         if (mListener != null)
             mListener.onChange(color);
+    }
+
+    @Override
+    public void onTabChanged(String s) {
+        mCurrent = (ColorPicker) mViews.get(s);
+        mCurrent.setColor(getColor());
     }
 }

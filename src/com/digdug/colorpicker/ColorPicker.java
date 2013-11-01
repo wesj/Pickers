@@ -6,6 +6,7 @@ public interface ColorPicker {
 	}
 
 	public int getColor();
+    public void setColor(int color);
 
 	public void setColorChangeListener(ColorListener listener);
 }

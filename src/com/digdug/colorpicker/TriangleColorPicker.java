@@ -63,8 +63,9 @@ public class TriangleColorPicker extends ViewBase implements ColorPicker {
         public void draw(Canvas canvas, float[] c, float r) {
             int save = canvas.save();
             canvas.rotate(mHue, c[0], c[1]);
-            canvas.drawVertices(VertexMode.TRIANGLE_FAN, getVerts(c[0], c[1], r).length,
-                    getVerts(c[0], c[1], r), 0,
+            float[] verts = getVerts(c[0], c[1], r);
+            canvas.drawVertices(VertexMode.TRIANGLE_FAN, verts.length,
+                    verts, 0,
                     null, 0,
                     mColors, 0,
                     null, 0, 0, mPaint);
@@ -328,6 +329,15 @@ public class TriangleColorPicker extends ViewBase implements ColorPicker {
 	public int getColor() {
 		return Color.HSVToColor(new float[] { mHue, mSat, mVal });
 	}
+
+    public void setColor(int color) {
+        float[] hsv = new float[3];
+        Color.colorToHSV(color, hsv);
+        mSat = hsv[1];
+        mVal = hsv[2] ;
+
+        setHue(hsv[0]);
+    }
 
     abstract public class TriangleWidget extends Widget {
         abstract public int[] getCoords(float cx, float cy, float r);

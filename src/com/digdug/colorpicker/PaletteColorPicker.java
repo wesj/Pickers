@@ -261,6 +261,11 @@ public class PaletteColorPicker extends ViewBase implements ColorPicker {
 		return current;
 	}
 
+    public void setColor(int color) {
+        current = color;
+        invalidate();
+    }
+
 	public void onSizeChange() {
 		invalidate();
 	}

@@ -16,12 +16,26 @@ import java.util.GregorianCalendar;
 
 public class MainActivity extends Activity {
 
-	@Override
+    private int mColor;
+    private ColorPickerDialog mDialog;
+    private TextView mText;
+
+    private final DialogInterface.OnClickListener mColorListener = new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialogInterface, int which) {
+            mColor = mDialog.getColor();
+            mText.setText("Color: " + Color.red(mColor) + "," + Color.green(mColor) + "," + Color.blue(mColor));
+            mText.setTextColor(mColor);
+            mDialog = null;
+        }
+    };
+
+    @Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		final TextView text = (TextView)findViewById(R.id.time);
+		mText = (TextView)findViewById(R.id.time);
 		final String ok = getResources().getString(android.R.string.ok);
 
 		Button button = (Button)findViewById(R.id.timePickerButton);
@@ -33,7 +47,7 @@ public class MainActivity extends Activity {
 					@Override
 					public void onClick(DialogInterface dialogInterface, int which) {
 						CharSequence format = DateFormat.format("hh:mm aa", dialog.getTime());
-						text.setText(format);
+						mText.setText(format);
 					}
 				});
 				dialog.setTime(new GregorianCalendar());
@@ -45,16 +59,10 @@ public class MainActivity extends Activity {
 		button.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				final ColorPickerDialog dialog = new ColorPickerDialog(MainActivity.this);
-				dialog.setButton(Dialog.BUTTON_POSITIVE, ok, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialogInterface, int which) {
-						int color = dialog.getColor();
-						text.setText("Color: " + Color.red(color) + "," + Color.green(color) + "," + Color.blue(color));
-						text.setTextColor(color);
-					}
-				});
-				dialog.show();
+                mDialog = new ColorPickerDialog(MainActivity.this);
+                mDialog.setButton(Dialog.BUTTON_POSITIVE, ok, mColorListener);
+                mDialog.setColor(mColor);
+                mDialog.show();
 			}
 		});
 
@@ -62,17 +70,11 @@ public class MainActivity extends Activity {
         button.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                final ColorPickerDialog dialog = new ColorPickerDialog(MainActivity.this);
-                dialog.setMode(ColorPickerDialog.Mode.TAB);
-                dialog.setButton(Dialog.BUTTON_POSITIVE, ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int which) {
-                        int color = dialog.getColor();
-                        text.setText("Color: " + Color.red(color) + "," + Color.green(color) + "," + Color.blue(color));
-                        text.setTextColor(color);
-                    }
-                });
-                dialog.show();
+                mDialog = new ColorPickerDialog(MainActivity.this);
+                mDialog.setMode(ColorPickerDialog.Mode.TAB);
+                mDialog.setButton(Dialog.BUTTON_POSITIVE, ok, mColorListener);
+                mDialog.setColor(mColor);
+                mDialog.show();
             }
         });
 
@@ -80,17 +82,11 @@ public class MainActivity extends Activity {
 		button.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				final ColorPickerDialog dialog = new ColorPickerDialog(MainActivity.this);
-				dialog.setMode(ColorPickerDialog.Mode.PALETTE);
-				dialog.setButton(Dialog.BUTTON_POSITIVE, ok, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialogInterface, int which) {
-						int color = dialog.getColor();
-						text.setText(dialog.getColorString(color));
-						text.setTextColor(color);
-					}
-				});
-				dialog.show();
+                mDialog = new ColorPickerDialog(MainActivity.this);
+                mDialog.setMode(ColorPickerDialog.Mode.PALETTE);
+                mDialog.setButton(Dialog.BUTTON_POSITIVE, ok, mColorListener);
+                mDialog.setColor(mColor);
+                mDialog.show();
 			}
 		});
 
@@ -103,7 +99,7 @@ public class MainActivity extends Activity {
 				dialog.setButton(Dialog.BUTTON_POSITIVE, ok, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialogInterface, int which) {
-						text.setText(Integer.toString(dialog.getValue()));
+						mText.setText(Integer.toString(dialog.getValue()));
 					}
 				});
 				dialog.show();
@@ -118,7 +114,7 @@ public class MainActivity extends Activity {
 				dialog.setButton(Dialog.BUTTON_POSITIVE, ok, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialogInterface, int which) {
-						text.setText(dialog.buildString(dialog.getDate()));
+						mText.setText(dialog.buildString(dialog.getDate()));
 					}
 				});
 				dialog.show();
@@ -129,17 +125,11 @@ public class MainActivity extends Activity {
         button.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                final ColorPickerDialog dialog = new ColorPickerDialog(MainActivity.this);
-                dialog.setMode(ColorPickerDialog.Mode.SLIDER);
-                dialog.setButton(Dialog.BUTTON_POSITIVE, ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int which) {
-                        int color = dialog.getColor();
-                        text.setText(dialog.getColorString(color));
-                        text.setTextColor(color);
-                    }
-                });
-                dialog.show();
+                mDialog = new ColorPickerDialog(MainActivity.this);
+                mDialog.setMode(ColorPickerDialog.Mode.SLIDER);
+                mDialog.setButton(Dialog.BUTTON_POSITIVE, ok, mColorListener);
+                mDialog.setColor(mColor);
+                mDialog.show();
             }
         });
 	}

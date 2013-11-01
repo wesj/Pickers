@@ -9,6 +9,7 @@ import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 
 /**
@@ -24,25 +25,22 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
     private MODE mMode;
     private Drawable mIndicator;
 
-    private float[] hsl = new float[3];
+    private float[] hsl;
     private static int[] mHueList = new int[] { 0xFFFF0000, 0xFFFFFF00, 0xFF00FF00, 0xFF00FFFF, 0xFF0000FF, 0xFFFF00FF, 0xFFFF0000 };
     private boolean mDragging;
 
-    public float getHue() {
-        return hsl[0];
-    }
-
-    public float getSat() {
-        return hsl[1];
-    }
-
-    public float getVal() {
-        return hsl[2];
-    }
+    private float getHue() { return hsl[0]; }
+    private float getSat() { return hsl[1]; }
+    private float getVal() { return hsl[2]; }
 
     public enum MODE {
         RGB,
         HSL
+    }
+
+    public MODE getMode() { return mMode; }
+    public void setMode(MODE mode) {
+        mMode = mode;
     }
 
     public SliderColorPicker(Context context) {
@@ -62,6 +60,26 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
         return Color.HSVToColor(hsl);
     }
 
+    public void setColor(int color) {
+        Color.colorToHSV(color, hsl);
+
+        mBar1.setVal(hsl[0]/360);
+        mBar2.setVal(hsl[1]);
+        mBar3.setVal(hsl[2]);
+        setupBars();
+
+        invalidate();
+    }
+
+    private void setupBars() {
+        mBar1.setColors(getHueList(getSat(), getVal()));
+        mBar2.setColors(new int[] { Color.HSVToColor(new float[] { getHue(), 0f, getVal() }),
+                Color.HSVToColor(new float[] { getHue(), 1f, getVal() }) });
+        mBar3.setColors(new int[] { Color.HSVToColor(new float[] { getHue(), getSat(), 0f }),
+                Color.HSVToColor(new float[] { getHue(), getSat(), 1f }) });
+
+    }
+
     @Override
     public void setColorChangeListener(ColorListener listener) {
         mListener = listener;
@@ -72,16 +90,13 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
         hsl = new float[3];
         hsl[0] = 0f;
         hsl[1] = 1f;
-        hsl[2] = 0f;
-        mBar1 = new Bar(getHueList(getSat(), getVal()), getHue()/360);
-        mBar2 = new Bar(new int[] { Color.HSVToColor(new float[] { getHue(), 0f, getVal() }),
+        hsl[2] = 1f;
+        mBar1 = new Bar("Hue", getHueList(getSat(), getVal()), getHue()/360);
+        mBar2 = new Bar("Saturation", new int[] { Color.HSVToColor(new float[] { getHue(), 0f, getVal() }),
                                     Color.HSVToColor(new float[] { getHue(), 1f, getVal() }) }, getSat());
-        mBar3 = new Bar(new int[] { Color.HSVToColor(new float[] { getHue(), getSat(), 0f }),
+        mBar3 = new Bar("Value", new int[] { Color.HSVToColor(new float[] { getHue(), getSat(), 0f }),
                                     Color.HSVToColor(new float[] { getHue(), getSat(), 1f }) }, getVal());
-    }
-
-    public void setMode(MODE mode) {
-        mMode = mode;
+        Log.i("ColorPicker", getHue() + ", " + getSat() + ", " + getVal());
     }
 
     private float getBarHeight() {
@@ -111,30 +126,38 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
         private static final float PADDING = 40;
         private static final float STROKE = 5;
         private RectF mRect;
+        private String mLabel = "Hue";
 
-        public Bar(int[] colors, float position) {
+        public Bar(String label, int[] colors, float position) {
+            mLabel = label;
             mPaint = new Paint();
+            mPaint.setTextSize(mPaint.getTextSize() * 2);
             mColors = colors;
             mPosition = position;
         }
 
         public void draw(Canvas canvas) {
             int state = canvas.save();
-
-            float padding = 40f;
             mPaint.setStyle(Paint.Style.FILL);
+            mPaint.setAntiAlias(!mDragging);
+
             if (mGradient == null) {
                 mGradient = new LinearGradient(PADDING, PADDING, getWidth() - PADDING, PADDING, mColors, null, Shader.TileMode.CLAMP);
             }
+
+            mPaint.setColor(Color.BLACK);
+            canvas.drawText(mLabel, PADDING, PADDING, mPaint);
+
             if (mRect == null) {
-                mRect = new RectF(PADDING, PADDING/2, getWidth()-PADDING, getBarHeight()-PADDING/2);
+                mRect = new RectF(PADDING, PADDING/2 + mPaint.getTextSize()*1.5f, getWidth()-PADDING, getBarHeight()-PADDING/2);
             }
             mPaint.setShader(mGradient);
             canvas.drawRect(mRect, mPaint);
 
+            mPaint.setShader(null);
             mPaint.setStyle(Paint.Style.STROKE);
-            mPaint.setStrokeWidth(STROKE);
-            mPaint.setColor(Color.BLACK);
+            mPaint.setStrokeWidth(1);
+            mPaint.setColor(0xAAAAAAAA);
             canvas.drawRect(mRect, mPaint);
 
             drawIndicator(canvas);
@@ -154,18 +177,23 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
                 mPaint.setStyle(Paint.Style.FILL);
                 mPaint.setShader(null);
                 mPaint.setColor(getColor());
-                canvas.drawCircle(0, 0, r, mPaint);
+                canvas.drawCircle(0, mPaint.getTextSize()*3/4, r, mPaint);
 
                 mPaint.setStyle(Paint.Style.STROKE);
                 mPaint.setStrokeWidth(STROKE);
                 mPaint.setColor(Color.WHITE);
-                canvas.drawCircle(0, 0, r, mPaint);
+                canvas.drawCircle(0, mPaint.getTextSize()*3/4, r, mPaint);
 
-                mPaint.setColor(Color.BLACK);
-                canvas.drawCircle(0, 0, r+STROKE, mPaint);
+                mPaint.setColor(0xAAAAAAAA);
+                mPaint.setStrokeWidth(1);
+                canvas.drawCircle(0, mPaint.getTextSize()*3/4, r+STROKE, mPaint);
             }
 
             canvas.restoreToCount(state);
+        }
+
+        public void setVal(float val) {
+            mPosition = val;
         }
 
         public float dragTo(float x, float y) {
@@ -206,12 +234,7 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
                     break;
             }
 
-            mBar1.setColors(getHueList(getSat(), getVal()));
-            mBar2.setColors(new int[] { Color.HSVToColor(new float[] { getHue(), 0f, getVal() }),
-                                        Color.HSVToColor(new float[] { getHue(), 1f, getVal() }) });
-            mBar3.setColors(new int[] { Color.HSVToColor(new float[] { getHue(), getSat(), 0f }),
-                                        Color.HSVToColor(new float[] { getHue(), getSat(), 1f }) });
-
+            setupBars();
             if (mListener != null) {
                 mListener.onChange(getColor());
             }

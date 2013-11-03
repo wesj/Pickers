@@ -1,17 +1,96 @@
 <!doctype html>
 <html>
   <head>
+    <style type="text/css">
+body, html {
+    padding: 0;
+    margin: 0;
+    font-family: sans-serif;
+}
+
+header {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 3em;
+    padding: 1em;
+    background-color: rgb(10, 41, 177);
+    background-image: linear-gradient(90deg, red, orange, yellow, green, blue, purple);
+    background-size: 100% 5px;
+    background-position: bottom;
+    background-repeat: no-repeat;
+    color: white;
+    z-index: 10;
+}
+
+header > h1,
+header > p {
+    display: inline;
+    padding: 0;
+    margin: 0;
+}
+
+.wrapper a,
+#banner a {
+    color: white;
+}
+
+.wrapper nav,
+#banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 5;
+    display: block;
+    padding: 6em 1em 1em;
+    width: calc(100% - 2em);
+    color: white;
+}
+
+#banner {
+    background-color: #333;
+    text-align: right;
+    box-shadow: 0px 5px 5px black;
+}
+
+.wrapper nav ul {
+    display: inline;
+    list-style-type: none;
+    list-stype-image: none;
+    padding: 0;
+}
+
+section {
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 6em 1em 1em;
+    text-align: justify;
+}
+
+img.left {
+    width: 300px;
+}
+img.right {
+    width: 300px;
+}
+
+#banner ul,
+#banner ul li {
+    display: inline;
+}
+</style>
   </head>
   <body>
       <header>
         <h1>Pickers</h1>
-        <p>A set of time/date/color pickers for Android</p>
+        <p>Time/date/color pickers for Android</p>
       </header>
 
       <div id="banner">
         <span id="logo"></span>
-
-        <a href="https://github.com/wesj/Pickers" class="button fork"><strong>View On GitHub</strong></a>
+        <a href="https://github.com/wesj/Pickers" class="button fork">View On GitHub</a>
         <div class="downloads">
           <span>Downloads:</span>
           <ul>

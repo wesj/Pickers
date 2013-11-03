@@ -4,5 +4,11 @@
     <string name="app_name">ColorPicker</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    <string name="hue">Hue</string>
+    <string name="sat">Saturation</string>
+    <string name="value">Value</string>
 
+    <string name="text1">Text 1</string>
+    <string name="text2">Text 2</string>
+    <string name="text3">Text 3</string>
 </resources>

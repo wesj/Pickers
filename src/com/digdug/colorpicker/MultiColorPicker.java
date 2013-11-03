@@ -108,9 +108,13 @@ public class MultiColorPicker extends TabHost implements ColorPicker,
             } else if ("hsv".equals(s)) {
                 v = new SliderColorPicker(getContext());
                 ((SliderColorPicker)v).setMode(SliderColorPicker.MODE.HSV);
+                ((SliderColorPicker)v).setLabels(new int[]{R.string.hue, R.string.sat, R.string.value});
+                ((SliderColorPicker)v).setTextSize(getContext().getResources().getDimensionPixelSize(R.dimen.large_font_size));
             } else if ("rgb".equals(s)) {
                 v = new SliderColorPicker(getContext());
                 ((SliderColorPicker)v).setMode(SliderColorPicker.MODE.RGB);
+                ((SliderColorPicker)v).setTextSize(getContext().getResources().getDimensionPixelSize(R.dimen.medium_font_size));
+                ((SliderColorPicker)v).setPadding(40);
             }
 
             if (v != null) {

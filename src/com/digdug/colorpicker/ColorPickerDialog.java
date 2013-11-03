@@ -33,9 +33,10 @@ public class ColorPickerDialog extends DialogBase implements ColorListener {
         if (tv != null)
 		    tv.setShadowLayer(2, 0, 0, Color.BLACK);
 
+        // TODO: Remember the last selected tab
 		setMode(Mode.TRIANGLE);
         setCustomTitle(null);
-		onChange(Color.RED);
+		onChange(getColor());
 	}
 	
 	public void setMode(Mode mode) {
@@ -93,6 +94,7 @@ public class ColorPickerDialog extends DialogBase implements ColorListener {
 
     public void setColor(int color) {
         v.setColor(color);
+        onChange(color);
     }
 
     @Override

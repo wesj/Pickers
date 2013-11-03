@@ -1,82 +1,96 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_gravity="center_vertical"
-    android:padding="32dp"
-    tools:context=".MainActivity" >
+    android:orientation="vertical" android:layout_height="match_parent" android:layout_width="match_parent">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="top"
+        android:paddingLeft="32dp"
+        android:paddingRight="32dp"
+        tools:context=".MainActivity" >
 
-    <TextView
-    	android:gravity="center_horizontal"
-	    android:id="@+id/time"
-	    android:textSize="40sp"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"/>
-
-	<LinearLayout
-	    android:orientation="horizontal"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content">
-
-	    <Button android:id="@+id/numberButton"
-		    android:text="Number"
-		    android:gravity="center"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"/>
-	    
-		<Button android:id="@+id/timePickerButton"
-		    android:text="Time"
-		    android:gravity="center"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"/>
-		    
-		<Button android:id="@+id/colorButton1"
-		    android:text="TrianglePicker"
-		    android:gravity="center"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"/>
-	
-	</LinearLayout>	
-	<LinearLayout
-	    android:orientation="horizontal"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content">
-	    <Button android:id="@+id/colorButton2"
-		    android:text="PalettePicker"
-		    android:gravity="center"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"/>
-	
-		<Button android:id="@+id/datePicker"
-		    android:text="Date"
-		    android:gravity="center"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"/>
-
-        <Button android:id="@+id/colorButton3"
-            android:text="MultiPicker"
-            android:gravity="center"
-            android:layout_width="wrap_content"
+        <TextView
+            android:gravity="center_horizontal"
+            android:id="@+id/time"
+            android:textSize="40sp"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"/>
-	</LinearLayout>
 
-    <Button
-        android:id="@+id/hsvButton"
-        android:text="HSV"
-        android:gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
-    <Button
-        android:id="@+id/rgbButton"
-        android:text="RGB"
-        android:gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    <!-- <com.digdug.colorpicker.DatePicker
-            android:id="@+id/timepicker"
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>-->
+            android:layout_height="wrap_content">
 
+            <Button android:id="@+id/numberButton"
+                android:text="Number"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <Button android:id="@+id/timePickerButton"
+                android:text="Time"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <Button android:id="@+id/colorButton1"
+                android:text="TrianglePicker"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <Button android:id="@+id/colorButton2"
+                android:text="PalettePicker"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <Button android:id="@+id/datePicker"
+                android:text="Date"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <Button android:id="@+id/colorButton3"
+                android:text="MultiPicker"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/hsvButton"
+                android:text="HSV"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/rgbButton"
+                android:text="RGB"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <com.digdug.colorpicker.SliderColorPicker
+            android:id="@+id/mycolorpicker"
+            android:spacing="20dp"
+            android:targetDescriptions="@array/labels"
+            android:layout_width="match_parent"
+            android:minHeight="300dp"
+            android:src="@drawable/selector"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
 </LinearLayout>

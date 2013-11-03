@@ -307,22 +307,23 @@ public class TriangleColorPicker extends ViewBase implements ColorPicker {
     Widget mIndicator = new Widget() {
         @Override
  	    public void draw(Canvas canvas, float[] c, float r) {
-            int save = canvas.save();
-            Paint p = new Paint();
-            p.setColor(getColor());
-            int[] coords = mTriangle.getCoords(c[0], c[1], r);
+        int save = canvas.save();
+        int[] coords = mTriangle.getCoords(c[0], c[1], r);
 
-            canvas.translate(c[0], c[1]);
-            canvas.rotate(mHue, 0, 0);
-            p.setStyle(Paint.Style.FILL);
-            canvas.drawCircle(coords[0], coords[1], WIDTH/2, p);
+        canvas.translate(c[0], c[1]);
+        canvas.rotate(mHue, 0, 0);
 
-            p.setStyle(Paint.Style.STROKE);
-            p.setStrokeWidth(5);
-            p.setColor(mVal > 0.5 ? Color.BLACK : Color.WHITE);
-            canvas.drawCircle(coords[0], coords[1], WIDTH/2, p);
+        Paint p = new Paint();
+        p.setColor(getColor());
+        p.setStyle(Paint.Style.FILL);
+        canvas.drawCircle(coords[0], coords[1], WIDTH/2, p);
 
-            canvas.restoreToCount(save);
+        p.setStyle(Paint.Style.STROKE);
+        p.setStrokeWidth(5);
+        p.setColor(mVal > 0.5 ? Color.BLACK : Color.WHITE);
+        canvas.drawCircle(coords[0], coords[1], WIDTH/2, p);
+
+        canvas.restoreToCount(save);
         }
     };
 

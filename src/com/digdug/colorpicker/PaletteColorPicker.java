@@ -13,18 +13,35 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.util.HashMap;
+
 public class PaletteColorPicker extends ViewBase implements ColorPicker {
-    private static final int MAX_COLUMNS = 8;
-    int[] hueList = { 0, 30, 60, 120, 180, 210, 270, 330 };
-	private int size = 5;
-	private int hues = hueList.length;
-	private int[][] mSwatchColors;
-	private Path mPath;
+    final int[] HUE_LIST = { 0, 30, 60, 120, 180, 210, 270, 330 };
+    final private int NUM_ROWS = 5;
+	private int hues = HUE_LIST.length;
+
 	private ColorListener mListener;
-	private Path mStartPath;
-	private Path mEndPath;
+
     private int[][] mUserPalette;
-    private Path mStartPath3;
+    private int[][] mSwatchColors;
+
+    private enum PathType {
+        SQUARE,
+        UPPER_UP,
+        UPPER_DOWN,
+        UP,
+        DOWN,
+        LOWER_UP,
+        LOWER_DOWN
+    }
+    private enum DipType {
+        DOWN,
+        UP,
+        NONE
+    }
+    private HashMap<PathType, Path> mPaths = new HashMap<PathType, Path>();
+    private int current;
+    private Bitmap cache;
 
     public PaletteColorPicker(Context context) {
 		super(context);
@@ -43,11 +60,6 @@ public class PaletteColorPicker extends ViewBase implements ColorPicker {
 		setLayerType(View.LAYER_TYPE_SOFTWARE, null);		
 	}
 
-	private int current;
-	private Bitmap cache;
-	private Path mPath2;
-	private Path mEndPath2;
-	private Path mStartPath2;
 	public boolean onTouchEvent(MotionEvent event) {
 		if (event.getActionMasked() == MotionEvent.ACTION_UP) {
 			return false;
@@ -101,13 +113,7 @@ public class PaletteColorPicker extends ViewBase implements ColorPicker {
 		canvas.translate(getPaddingLeft(), getPaddingTop());
 
         if (mUserPalette != null) {
-            // TODO: Just cache these in an array so we don't have to do this :)
-            mStartPath = null;
-            mStartPath2 = null;
-            mStartPath3 = null;
-            mEndPath = null;
-            mEndPath2 = null;
-
+            mPaths.clear();
             w = (getWidth()- getPaddingLeft() - getPaddingRight()) / mUserPalette[0].length;
 
             for (int row = 0; row < mUserPalette.length; row++) {
@@ -119,12 +125,7 @@ public class PaletteColorPicker extends ViewBase implements ColorPicker {
         }
 
         w = (getWidth()- getPaddingLeft() - getPaddingRight()) / colors[0].length;
-        // TODO: Just cache these in an array so we don't have to do this :)
-        mStartPath = null;
-        mStartPath2 = null;
-        mStartPath3 = null;
-        mEndPath = null;
-        mEndPath2 = null;
+        mPaths.clear();
         for (int row = 0; row < colors.length; row++) {
             for (int col = 0; col < colors[row].length; col++) {
                 drawSwatch(canvas, colors[row][col], row, colors.length, col, colors[0].length, w, h);
@@ -137,10 +138,10 @@ public class PaletteColorPicker extends ViewBase implements ColorPicker {
 		if (mSwatchColors != null)
 			return mSwatchColors;
 
-        int s = size - alreadyTakenRows;
+        int s = NUM_ROWS - alreadyTakenRows;
 		mSwatchColors = new int[s][hues];
 		for (int i = 0; i < hues; i++) {
-			int c = Color.HSVToColor(new float[] {hueList[i], 1.0f, 1.0f});
+			int c = Color.HSVToColor(new float[] {HUE_LIST[i], 1.0f, 1.0f});
 			if (i == hues-1) c= Color.WHITE;
 
 			float r = Color.red(c)/255.0f;
@@ -171,16 +172,16 @@ public class PaletteColorPicker extends ViewBase implements ColorPicker {
 
 		Path path = null;
         if (row == 0 && rows == 1) {
-            path = getStartPath3(w - border, h - border);
+            path = getPath(PathType.SQUARE, w - border, h - border);
         } else if (row == 0) {
-			if (col %2 == 0) path = getStartPath(w-border, h-border);
-			else path = getStartPath2(w-border, h-border);
+			if (col %2 == 0) path = getPath(PathType.UPPER_DOWN, w-border, h-border);
+			else path = getPath(PathType.UPPER_UP, w-border, h-border);
 		} else if (row == rows - 1) {
-			if (col %2 == 0) path = getEndPath(w-border,h-border);
-			else path = getEndPath2(w-border,h-border);
+			if (col %2 == 0) path = getPath(PathType.LOWER_DOWN, w-border,h-border);
+			else path = getPath(PathType.LOWER_UP, w-border,h-border);
 		} else {
-			if (col %2 == 0) path = getPath(w-border, h-border);
-			else path = getPath2(w-border, h-border);
+			if (col %2 == 0) path = getPath(PathType.DOWN, w-border, h-border);
+			else path = getPath(PathType.UP, w-border, h-border);
 		}
 
 		canvas.drawPath(path, p);
@@ -203,105 +204,63 @@ public class PaletteColorPicker extends ViewBase implements ColorPicker {
 		canvas.restoreToCount(save);
 	}
 
-	private Path getStartPath(float w, float h) {
-		if (mStartPath != null)
-			return mStartPath;
-		mStartPath = new Path();
-		mStartPath.moveTo(0.0f, 0.0f);
-		mStartPath.lineTo(w, 0);
-		mStartPath.lineTo(w, h);
-		mStartPath.lineTo(w/2, h*1.25f);
-		mStartPath.lineTo(0, h);
-		mStartPath.lineTo(0, 0);
-		mStartPath.close();
-		return mStartPath;
-	}
-
-    private Path getStartPath3(float w, float h) {
-        if (mStartPath3 != null)
-            return mStartPath3;
-        mStartPath = new Path();
-        mStartPath.moveTo(0.0f, 0.0f);
-        mStartPath.lineTo(w, 0);
-        mStartPath.lineTo(w, h);
-        mStartPath.lineTo(0, h);
-        mStartPath.lineTo(0, 0);
-        mStartPath.close();
-        return mStartPath;
+    private Path getPath(PathType type, float w, float h) {
+        DipType top = DipType.NONE;
+        DipType bottom = DipType.NONE;
+        switch(type) {
+            case UPPER_DOWN:
+                bottom = DipType.DOWN;
+                break;
+            case UPPER_UP:
+                bottom = DipType.UP;
+                break;
+            case LOWER_DOWN:
+                top = DipType.DOWN;
+                break;
+            case LOWER_UP:
+                top = DipType.UP;
+                break;
+            case DOWN:
+                top = DipType.DOWN;
+                bottom = DipType.DOWN;
+                break;
+            case UP:
+                top = DipType.UP;
+                bottom = DipType.UP;
+                break;
+            case SQUARE:
+                break;
+        }
+        return getPath(type, top, bottom, w, h);
     }
 
-	private Path getStartPath2(float w, float h) {
-		if (mStartPath2 != null)
-			return mStartPath2;
-		mStartPath2 = new Path();
-		mStartPath2.moveTo(0.0f, 0.0f);
-		mStartPath2.lineTo(w, 0);
-		mStartPath2.lineTo(w, h);
-		mStartPath2.lineTo(w/2, h*0.75f);
-		mStartPath2.lineTo(0, h);
-		mStartPath2.lineTo(0, 0);
-		mStartPath2.close();
-		return mStartPath2;
-	}
+    private Path getPath(PathType type, DipType topDip, DipType bottomDip, float w, float h) {
+        if (mPaths.containsKey(type))
+            return mPaths.get(type);
 
-	private Path getEndPath(float w, float h) {
-		if (mEndPath != null)
-			return mEndPath;
-		mEndPath = new Path();
-		mEndPath.moveTo(0.0f, 0.0f);
-		mEndPath.lineTo(w/2, h*0.25f);
-		mEndPath.lineTo(w, 0);
-		mEndPath.lineTo(w, h);
-		mEndPath.lineTo(0, h);
-		mEndPath.lineTo(0, 0);
-		mEndPath.close();
-		return mEndPath;
-	}
-	
-	private Path getEndPath2(float w, float h) {
-		if (mEndPath2 != null)
-			return mEndPath2;
-		mEndPath2 = new Path();
-		mEndPath2.moveTo(0.0f, 0.0f);
-		mEndPath2.lineTo(w/2, h*-0.25f);
-		mEndPath2.lineTo(w, 0);
-		mEndPath2.lineTo(w, h);
-		mEndPath2.lineTo(0, h);
-		mEndPath2.lineTo(0, 0);
-		mEndPath2.close();
-		return mEndPath2;
-	}
+        Path p = new Path();
+        p.moveTo(0.0f, 0.0f);
 
-	private Path getPath(float w, float h) {
-		if (mPath != null)
-			return mPath;
-		mPath = new Path();
-		mPath.moveTo(0.0f, 0.0f);
-		mPath.lineTo(w/2, h*0.25f);
-		mPath.lineTo(w, 0);
-		mPath.lineTo(w, h);
-		mPath.lineTo(w/2, h*1.25f);
-		mPath.lineTo(0, h);
-		mPath.lineTo(0, 0);
-		mPath.close();
-		return mPath;
-	}
+        if (topDip == DipType.DOWN)
+            p.lineTo(w/2, h*0.25f);
+        else if (topDip == DipType.UP)
+            p.lineTo(w/2, h*-0.25f);
 
-	private Path getPath2(float w, float h) {
-		if (mPath2 != null)
-			return mPath2;
-		mPath2 = new Path();
-		mPath2.moveTo(0.0f, 0.0f);
-		mPath2.lineTo(w/2, h*-0.25f);
-		mPath2.lineTo(w, 0);
-		mPath2.lineTo(w, h);
-		mPath2.lineTo(w/2, h*0.75f);
-		mPath2.lineTo(0, h);
-		mPath2.lineTo(0, 0);
-		mPath2.close();
-		return mPath2;
-	}
-	
+        p.lineTo(w, 0);
+        p.lineTo(w, h);
+
+        if (bottomDip == DipType.DOWN)
+            p.lineTo(w/2, h*1.25f);
+        else if (bottomDip == DipType.UP)
+            p.lineTo(w/2, h*0.75f);
+
+        p.lineTo(0, h);
+        p.lineTo(0, 0);
+        p.close();
+        mPaths.put(type, p);
+        return p;
+    }
+
 	public int getColor() {
 		return current;
 	}
@@ -330,8 +289,8 @@ public class PaletteColorPicker extends ViewBase implements ColorPicker {
         double rows = 0;
         double cols = 0;
         if (colors.length >= 8) {
-            rows = Math.ceil((float)colors.length / (float)MAX_COLUMNS);
-            cols = Math.min(MAX_COLUMNS, Math.ceil(colors.length / rows));
+            rows = Math.ceil((float)colors.length / (float) hues);
+            cols = Math.min(hues, Math.ceil(colors.length / rows));
         } else if (colors.length > 4) {
             rows = 2;
             cols = Math.ceil(colors.length / 2f);
@@ -350,5 +309,6 @@ public class PaletteColorPicker extends ViewBase implements ColorPicker {
                     mUserPalette[row][col] = colors[index];
             }
         }
+        mSwatchColors = null;
     }
 }

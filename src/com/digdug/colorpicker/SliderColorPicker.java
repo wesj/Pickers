@@ -24,7 +24,8 @@ import android.view.View;
  * Created by wesj on 10/30/13.
  */
 public class SliderColorPicker extends ViewBase implements ColorPicker {
-    private static final float STROKE = 5;
+    private static final float STROKE_BASE = 2;
+    private final float STROKE;
 
     private Typeface mTypeface;
     private ColorStateList mTextColor;
@@ -76,6 +77,8 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
 
     public SliderColorPicker(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        Resources r = getResources();
+        STROKE = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, STROKE_BASE, r.getDisplayMetrics());
 
         final Resources.Theme theme = context.getTheme();
         if (theme != null) {

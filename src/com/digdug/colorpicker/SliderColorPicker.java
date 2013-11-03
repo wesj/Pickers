@@ -24,7 +24,7 @@ import android.view.View;
  * Created by wesj on 10/30/13.
  */
 public class SliderColorPicker extends ViewBase implements ColorPicker {
-
+    private static final float STROKE = 5;
 
     private Typeface mTypeface;
     private ColorStateList mTextColor;
@@ -284,7 +284,6 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
         private LinearGradient mGradient;
 
         // TODO: Read these in dpi units
-        private static final float STROKE = 5;
         private RectF mRect;
         private CharSequence mLabel;
 

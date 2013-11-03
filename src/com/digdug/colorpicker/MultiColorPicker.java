@@ -3,6 +3,7 @@ package com.digdug.colorpicker;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
@@ -105,6 +106,14 @@ public class MultiColorPicker extends TabHost implements ColorPicker,
                 v = new TriangleColorPicker(getContext());
             } else if ("palette".equals(s)) {
                 v = new PaletteColorPicker(getContext());
+                v.setPadding(20, 20, 20, 20);
+
+                int size = 18;
+                int[] colors = new int[size];
+                for (int i = 0; i < size; i++) {
+                    colors[i] = Color.rgb((int) (Math.random() * 255), (int) (Math.random() * 255), (int) (Math.random() * 255));
+                }
+                ((PaletteColorPicker)v).setPalette(colors);
             } else if ("hsv".equals(s)) {
                 v = new SliderColorPicker(getContext());
                 ((SliderColorPicker)v).setMode(SliderColorPicker.MODE.HSV);

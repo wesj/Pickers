@@ -1,5 +1,6 @@
 package com.digdug.colorpicker;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -7,12 +8,14 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Join;
 import android.graphics.Path;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
 public class PaletteColorPicker extends ViewBase implements ColorPicker {
-	int[] hueList = { 0, 30, 60, 120, 180, 210, 270, 330 };
+    private static final int MAX_COLUMNS = 8;
+    int[] hueList = { 0, 30, 60, 120, 180, 210, 270, 330 };
 	private int size = 5;
 	private int hues = hueList.length;
 	private int[][] mSwatchColors;
@@ -20,9 +23,10 @@ public class PaletteColorPicker extends ViewBase implements ColorPicker {
 	private ColorListener mListener;
 	private Path mStartPath;
 	private Path mEndPath;
+    private int[][] mUserPalette;
+    private Path mStartPath3;
 
-
-	public PaletteColorPicker(Context context) {
+    public PaletteColorPicker(Context context) {
 		super(context);
 	}
 
@@ -34,6 +38,7 @@ public class PaletteColorPicker extends ViewBase implements ColorPicker {
 		super(context, attrs, defStyle);
 	}
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     protected void init(Context context) {
 		setLayerType(View.LAYER_TYPE_SOFTWARE, null);		
 	}
@@ -86,28 +91,54 @@ public class PaletteColorPicker extends ViewBase implements ColorPicker {
 	}
 
 	private void drawSwatches(Canvas canvas) {
-		int[][] colors = getSwatchColors();
+        int l = mUserPalette != null ? mUserPalette.length : 0;
+		int[][] colors = getSwatchColors(l);
 
-		float w = (getWidth()- getPaddingLeft() - getPaddingRight())/colors[0].length ;
-		float h = (getHeight()- getPaddingTop() - getPaddingBottom())/colors.length;
+		float w = 0;
+		float h = (getHeight()- getPaddingTop() - getPaddingBottom()) / (colors.length + l);
 
 		int save = canvas.save();
 		canvas.translate(getPaddingLeft(), getPaddingTop());
-		for (int row = 0; row < colors.length; row++) {
-			for (int col = 0; col < colors[row].length; col++) {
-				drawSwatch(canvas, colors[row][col], row, col, w, h);
-			}
-		}
+
+        if (mUserPalette != null) {
+            // TODO: Just cache these in an array so we don't have to do this :)
+            mStartPath = null;
+            mStartPath2 = null;
+            mStartPath3 = null;
+            mEndPath = null;
+            mEndPath2 = null;
+
+            w = (getWidth()- getPaddingLeft() - getPaddingRight()) / mUserPalette[0].length;
+
+            for (int row = 0; row < mUserPalette.length; row++) {
+                for (int col = 0; col < mUserPalette[row].length; col++) {
+                    drawSwatch(canvas, mUserPalette[row][col], row, mUserPalette.length, col, mUserPalette[0].length, w, h);
+                }
+            }
+            canvas.translate(0, mUserPalette.length*h);
+        }
+
+        w = (getWidth()- getPaddingLeft() - getPaddingRight()) / colors[0].length;
+        // TODO: Just cache these in an array so we don't have to do this :)
+        mStartPath = null;
+        mStartPath2 = null;
+        mStartPath3 = null;
+        mEndPath = null;
+        mEndPath2 = null;
+        for (int row = 0; row < colors.length; row++) {
+            for (int col = 0; col < colors[row].length; col++) {
+                drawSwatch(canvas, colors[row][col], row, colors.length, col, colors[0].length, w, h);
+            }
+        }
 		canvas.restoreToCount(save);
 	}
 
-	private int[][] getSwatchColors() {
+	private int[][] getSwatchColors(int alreadyTakenRows) {
 		if (mSwatchColors != null)
 			return mSwatchColors;
 
-
-		mSwatchColors = new int[size][hues];
-
+        int s = size - alreadyTakenRows;
+		mSwatchColors = new int[s][hues];
 		for (int i = 0; i < hues; i++) {
 			int c = Color.HSVToColor(new float[] {hueList[i], 1.0f, 1.0f});
 			if (i == hues-1) c= Color.WHITE;
@@ -116,8 +147,8 @@ public class PaletteColorPicker extends ViewBase implements ColorPicker {
 			float g = Color.green(c)/255.0f;
 			float b = Color.blue(c)/255.0f;
 
-			for (int j = 0; j < size; j++) {
-				float k = (size-1.0f-j)/(size-1.0f);
+			for (int j = 0; j < s; j++) {
+				float k = (s-1.0f-j)/(s-1.0f);
 				// Avoid really dark shades if this color isn't white
 				if (c != Color.WHITE) 
 					k = k*0.6f + 0.4f;
@@ -127,7 +158,7 @@ public class PaletteColorPicker extends ViewBase implements ColorPicker {
 		return mSwatchColors;
 	}
 
-	private void drawSwatch(Canvas canvas, int color, int row, int col, float w, float h) {
+	private void drawSwatch(Canvas canvas, int color, int row, int rows, int col, int cols, float w, float h) {
 		float x = w * col;
 		float y = h * row;
 		Paint p = new Paint();
@@ -138,12 +169,13 @@ public class PaletteColorPicker extends ViewBase implements ColorPicker {
 		int border = 5;
 		canvas.translate(border, border);
 
-		int[][] colors = getSwatchColors();
 		Path path = null;
-		if (row == 0) {
+        if (row == 0 && rows == 1) {
+            path = getStartPath3(w - border, h - border);
+        } else if (row == 0) {
 			if (col %2 == 0) path = getStartPath(w-border, h-border);
 			else path = getStartPath2(w-border, h-border);
-		} else if (row == colors.length -1) {
+		} else if (row == rows - 1) {
 			if (col %2 == 0) path = getEndPath(w-border,h-border);
 			else path = getEndPath2(w-border,h-border);
 		} else {
@@ -184,6 +216,19 @@ public class PaletteColorPicker extends ViewBase implements ColorPicker {
 		mStartPath.close();
 		return mStartPath;
 	}
+
+    private Path getStartPath3(float w, float h) {
+        if (mStartPath3 != null)
+            return mStartPath3;
+        mStartPath = new Path();
+        mStartPath.moveTo(0.0f, 0.0f);
+        mStartPath.lineTo(w, 0);
+        mStartPath.lineTo(w, h);
+        mStartPath.lineTo(0, h);
+        mStartPath.lineTo(0, 0);
+        mStartPath.close();
+        return mStartPath;
+    }
 
 	private Path getStartPath2(float w, float h) {
 		if (mStartPath2 != null)
@@ -280,4 +325,30 @@ public class PaletteColorPicker extends ViewBase implements ColorPicker {
 	public void setColorChangeListener(ColorListener listener) {
 		mListener = listener;
 	}
+
+    public void setPalette(int[] colors) {
+        double rows = 0;
+        double cols = 0;
+        if (colors.length >= 8) {
+            rows = Math.ceil((float)colors.length / (float)MAX_COLUMNS);
+            cols = Math.min(MAX_COLUMNS, Math.ceil(colors.length / rows));
+        } else if (colors.length > 4) {
+            rows = 2;
+            cols = Math.ceil(colors.length / 2f);
+        } else {
+            rows = 1;
+            cols = colors.length;
+        }
+
+        mUserPalette = new int[(int) rows][(int) cols];
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                int index = (int) (row*cols + col);
+                if (index >= colors.length)
+                    mUserPalette[row][col] = Color.WHITE;
+                else
+                    mUserPalette[row][col] = colors[index];
+            }
+        }
+    }
 }

@@ -83,14 +83,13 @@
                 android:layout_height="wrap_content" />
         </LinearLayout>
 
+        <!--android:targetDescriptions="@array/labels"-->
         <com.digdug.colorpicker.SliderColorPicker
             android:id="@+id/mycolorpicker"
             android:spacing="20dp"
-            android:targetDescriptions="@array/labels"
             android:layout_width="match_parent"
-            android:minHeight="300dp"
             android:src="@drawable/selector"
-            android:layout_height="wrap_content"/>
+            android:layout_height="200dp"/>
 
     </LinearLayout>
 </LinearLayout>

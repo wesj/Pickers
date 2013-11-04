@@ -3,7 +3,6 @@ package com.digdug.colorpicker;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.Menu;
@@ -24,7 +23,7 @@ public class MainActivity extends Activity {
         @Override
         public void onClick(DialogInterface dialogInterface, int which) {
             mColor = mDialog.getColor();
-            mText.setText("Color: " + Color.red(mColor) + "," + Color.green(mColor) + "," + Color.blue(mColor));
+            mText.setText(ColorNames.roundToName(mColor));
             mText.setTextColor(mColor);
             mDialog = null;
         }

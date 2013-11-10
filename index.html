@@ -129,6 +129,26 @@ footer p {
           <a name="pickers" class="anchor" href="#pickers"><span class="octicon octicon-link"></span>Pickers!</a>
         </h2>
         <p>A set of color pickers for Android. Also, some date and time pickers too, because, why not write more stuff :)</p>
+        <p>I've held it as a goal to have no resource dependencies at all here. These should work fine if you just include the src, and then include the views in your normal layout. i.e.</p>
+        <pre>
+<com.digdug.colorpicker.SliderColorPicker
+    android:id="@+id/mycolorpicker"
+    android:spacing="1dp"                <- Add some padding between rows
+    android:layout_width="match_parent"
+    android:src="@drawable/selector"     <- Show a custom indicator, tinted to the current color
+    android:paddingLeft="20dp"
+    android:paddingRight="100dp"
+    android:layout_height="200dp"/>
+<!-- SliderColorPicker can take an optional set of three labels to show on each row. i.e. "Red", "Green", "Blue"
+  android:targetDescriptions="@array/labels"-->
+</pre>
+<p>or in code</p>
+<pre>
+  SliderColorPicker cp = new SliderColorPicker(context);
+  cp.setSpacer(20);
+  cp.setPadding(10, 0, 10, 0);
+  cp.setIndicator(R.drawable.myIndicator);
+</pre>
         <img class='left' src="http://dl.dropboxusercontent.com/u/72157/picker/Triangle1.png">
         <img class='right' src="http://dl.dropboxusercontent.com/u/72157/picker/Palette1.png">
       </section>

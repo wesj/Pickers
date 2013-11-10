@@ -13,8 +13,6 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-import java.util.HashMap;
-
 public class PaletteColorPicker extends ViewBase implements ColorPicker {
     final int[] HUE_LIST = { 0, 30, 60, 120, 180, 210, 270, 330 };
     final private int NUM_ROWS = 5;
@@ -24,24 +22,13 @@ public class PaletteColorPicker extends ViewBase implements ColorPicker {
 
     private int[][] mUserPalette;
     private int[][] mSwatchColors;
+    private Path mPath;
 
-    private enum PathType {
-        SQUARE,
-        UPPER_UP,
-        UPPER_DOWN,
-        UP,
-        DOWN,
-        LOWER_UP,
-        LOWER_DOWN
-    }
-    private enum DipType {
-        DOWN,
-        UP,
-        NONE
-    }
-    private HashMap<PathType, Path> mPaths = new HashMap<PathType, Path>();
     private int current;
     private Bitmap cache;
+
+    private int mBorder = 5;
+    private boolean mShowDefault = true;
 
     public PaletteColorPicker(Context context) {
 		super(context);
@@ -107,13 +94,18 @@ public class PaletteColorPicker extends ViewBase implements ColorPicker {
 		int[][] colors = getSwatchColors(l);
 
 		float w = 0;
-		float h = (getHeight()- getPaddingTop() - getPaddingBottom()) / (colors.length + l);
+		float h;
+        if (l == 0 && colors.length == 0) {
+            h = getHeight()- getPaddingTop() - getPaddingBottom();
+        } else {
+            h = (getHeight()- getPaddingTop() - getPaddingBottom()) / (colors.length + l);
+        }
 
 		int save = canvas.save();
 		canvas.translate(getPaddingLeft(), getPaddingTop());
 
         if (mUserPalette != null) {
-            mPaths.clear();
+            mPath = null;
             w = (getWidth()- getPaddingLeft() - getPaddingRight()) / mUserPalette[0].length;
 
             for (int row = 0; row < mUserPalette.length; row++) {
@@ -124,8 +116,12 @@ public class PaletteColorPicker extends ViewBase implements ColorPicker {
             canvas.translate(0, mUserPalette.length*h);
         }
 
-        w = (getWidth()- getPaddingLeft() - getPaddingRight()) / colors[0].length;
-        mPaths.clear();
+        if (colors.length == 0 || colors[0].length == 0) {
+            w = (getWidth()- getPaddingLeft() - getPaddingRight());
+        } else {
+            w = (getWidth()- getPaddingLeft() - getPaddingRight()) / colors[0].length;
+        }
+        mPath = null;
         for (int row = 0; row < colors.length; row++) {
             for (int col = 0; col < colors[row].length; col++) {
                 drawSwatch(canvas, colors[row][col], row, colors.length, col, colors[0].length, w, h);
@@ -134,9 +130,27 @@ public class PaletteColorPicker extends ViewBase implements ColorPicker {
 		canvas.restoreToCount(save);
 	}
 
+    public int getBorder() {
+        return mBorder;
+    }
+
+    public void setBorder(int border) {
+        mBorder = border;
+    }
+
+    public void showDefaultPalette(boolean showPalette) {
+        mShowDefault = showPalette;
+        mSwatchColors = null;
+    }
+
 	private int[][] getSwatchColors(int alreadyTakenRows) {
 		if (mSwatchColors != null)
 			return mSwatchColors;
+
+        if (!mShowDefault) {
+            mSwatchColors = new int[0][0];
+            return mSwatchColors;
+        }
 
         int s = NUM_ROWS - alreadyTakenRows;
 		mSwatchColors = new int[s][hues];
@@ -167,23 +181,9 @@ public class PaletteColorPicker extends ViewBase implements ColorPicker {
 		p.setColor(color);
 		int save = canvas.save();
 		canvas.translate(x, y);
-		int border = 5;
-		canvas.translate(border, border);
+		canvas.translate(mBorder, mBorder);
 
-		Path path = null;
-        if (row == 0 && rows == 1) {
-            path = getPath(PathType.SQUARE, w - border, h - border);
-        } else if (row == 0) {
-			if (col %2 == 0) path = getPath(PathType.UPPER_DOWN, w-border, h-border);
-			else path = getPath(PathType.UPPER_UP, w-border, h-border);
-		} else if (row == rows - 1) {
-			if (col %2 == 0) path = getPath(PathType.LOWER_DOWN, w-border,h-border);
-			else path = getPath(PathType.LOWER_UP, w-border,h-border);
-		} else {
-			if (col %2 == 0) path = getPath(PathType.DOWN, w-border, h-border);
-			else path = getPath(PathType.UP, w-border, h-border);
-		}
-
+		Path path = getPath(row, rows, col, cols, w, h);
 		canvas.drawPath(path, p);
 		if (color == Color.WHITE) {
 			p.setStyle(Paint.Style.STROKE);
@@ -198,67 +198,24 @@ public class PaletteColorPicker extends ViewBase implements ColorPicker {
 			Color.colorToHSV(color, hsv);
 			p.setColor(hsv[2] > 0.5 ? Color.DKGRAY : Color.LTGRAY);
 			p.setStyle(Paint.Style.STROKE);
-			p.setStrokeWidth(border*2);
+			p.setStrokeWidth(mBorder*2);
 			canvas.drawPath(path, p);
 		}
 		canvas.restoreToCount(save);
 	}
 
-    private Path getPath(PathType type, float w, float h) {
-        DipType top = DipType.NONE;
-        DipType bottom = DipType.NONE;
-        switch(type) {
-            case UPPER_DOWN:
-                bottom = DipType.DOWN;
-                break;
-            case UPPER_UP:
-                bottom = DipType.UP;
-                break;
-            case LOWER_DOWN:
-                top = DipType.DOWN;
-                break;
-            case LOWER_UP:
-                top = DipType.UP;
-                break;
-            case DOWN:
-                top = DipType.DOWN;
-                bottom = DipType.DOWN;
-                break;
-            case UP:
-                top = DipType.UP;
-                bottom = DipType.UP;
-                break;
-            case SQUARE:
-                break;
+    protected Path getPath(int row, int rows, int col, int cols, float w, float h) {
+        if (mPath == null) {
+            int border = getBorder();
+            mPath = new Path();
+            mPath.moveTo(border, border);
+            mPath.lineTo(w - 2*border, border);
+            mPath.lineTo(w - 2*border, h - 2*border);
+            mPath.lineTo(border, h - 2*border);
+            mPath.lineTo(border, border);
+            mPath.close();
         }
-        return getPath(type, top, bottom, w, h);
-    }
-
-    private Path getPath(PathType type, DipType topDip, DipType bottomDip, float w, float h) {
-        if (mPaths.containsKey(type))
-            return mPaths.get(type);
-
-        Path p = new Path();
-        p.moveTo(0.0f, 0.0f);
-
-        if (topDip == DipType.DOWN)
-            p.lineTo(w/2, h*0.25f);
-        else if (topDip == DipType.UP)
-            p.lineTo(w/2, h*-0.25f);
-
-        p.lineTo(w, 0);
-        p.lineTo(w, h);
-
-        if (bottomDip == DipType.DOWN)
-            p.lineTo(w/2, h*1.25f);
-        else if (bottomDip == DipType.UP)
-            p.lineTo(w/2, h*0.75f);
-
-        p.lineTo(0, h);
-        p.lineTo(0, 0);
-        p.close();
-        mPaths.put(type, p);
-        return p;
+        return mPath;
     }
 
 	public int getColor() {
@@ -271,6 +228,7 @@ public class PaletteColorPicker extends ViewBase implements ColorPicker {
     }
 
 	public void onSizeChange() {
+        mPath = null;
 		invalidate();
 	}
 

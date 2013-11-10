@@ -1,6 +1,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_height="match_parent" android:layout_width="match_parent">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -86,9 +91,12 @@
         <!--android:targetDescriptions="@array/labels"-->
         <com.digdug.colorpicker.SliderColorPicker
             android:id="@+id/mycolorpicker"
-            android:spacing="20dp"
+            android:spacing="1dp"
+            android:padding="5dp"
             android:layout_width="match_parent"
             android:src="@drawable/selector"
+            android:paddingLeft="20dp"
+            android:paddingRight="100dp"
             android:layout_height="200dp"/>
 
     </LinearLayout>

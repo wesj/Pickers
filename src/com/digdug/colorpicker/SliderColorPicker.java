@@ -14,7 +14,9 @@ import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.MotionEvent;
@@ -26,6 +28,7 @@ import android.view.View;
 public class SliderColorPicker extends ViewBase implements ColorPicker {
     private static final float STROKE_BASE = 2;
     private final float STROKE;
+    private final float TEXT_SPACING = 1.25f;
 
     private Typeface mTypeface;
     private ColorStateList mTextColor;
@@ -40,16 +43,16 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
     private Drawable mIndicator;
 
     private int mColor;
-    private float[] hsl;
+    private float[] mHSV;
     private static int[] mHueList = new int[] { 0xFFFF0000, 0xFFFFFF00, 0xFF00FF00, 0xFF00FFFF, 0xFF0000FF, 0xFFFF00FF, 0xFFFF0000 };
     private CharSequence[] mLabels;
     private int mFontSize = -1;
-    private float mPadding;
+    private float mSpacer;
     private boolean shouldTint = true;
 
-    private float getHue() { return hsl[0]; }
-    private float getSat() { return hsl[1]; }
-    private float getVal() { return hsl[2]; }
+    private float getHue() { return mHSV[0]; }
+    private float getSat() { return mHSV[1]; }
+    private float getVal() { return mHSV[2]; }
 
     public int getRed() { return Color.red(mColor); }
     public int getGreen() { return Color.green(mColor); }
@@ -82,24 +85,24 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
 
         final Resources.Theme theme = context.getTheme();
         if (theme != null) {
-            int[] vals = new int[] {
-                    android.R.attr.textColor,
-                    android.R.attr.src,
-                    android.R.attr.textSize,
-                    android.R.attr.spacing,
-                    android.R.attr.targetDescriptions,
-            };
+            int[] vals = new int[0];
+            if (attrs != null) {
+                vals = new int[attrs.getAttributeCount()];
+                for (int i = 0; i < attrs.getAttributeCount(); i++) {
+                    vals[i] = attrs.getAttributeNameResource(i);
+                }
+            }
             TypedArray appearance = theme.obtainStyledAttributes(attrs, vals, defStyle, android.R.style.TextAppearance_DeviceDefault);
 
             if (appearance != null) {
-                int n = appearance.getIndexCount();
+                int n = appearance.length(); // getIndexCount();
 
                 int typefaceIndex = 0;
                 String fontFamily = "";
                 int styleIndex = 0;
 
                 for (int i = 0; i < n; i++) {
-                    int attr = appearance.getIndex(i);
+                    int attr = i; //appearance.getIndex(i);
 
                     TypedValue val = new TypedValue();
                     appearance.getValue(i, val);
@@ -129,8 +132,25 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
                         case android.R.attr.src:
                             mIndicator = appearance.getDrawable(attr);
                             break;
+                        case android.R.attr.padding:
+                            int padding = appearance.getDimensionPixelSize(attr, 0);
+                            setPadding(padding, padding, padding, padding);
+                            break;
+                        case android.R.attr.paddingLeft:
+                            setPadding(appearance.getDimensionPixelSize(attr, 0), getPaddingTop(), getPaddingRight(), getPaddingBottom());
+                            break;
+                        case android.R.attr.paddingRight:
+                            setPadding(getPaddingLeft(), getPaddingTop(), appearance.getDimensionPixelSize(attr, 0), getPaddingBottom());
+                            break;
+                        case android.R.attr.paddingTop:
+                            setPadding(getPaddingLeft(), appearance.getDimensionPixelSize(attr, 0), getPaddingRight(), getPaddingBottom());
+                            break;
+                        case android.R.attr.paddingBottom:
+                            setPadding(getPaddingLeft(), getPaddingTop(), getPaddingRight(), appearance.getDimensionPixelSize(attr, 0));
+                            break;
                         case android.R.attr.spacing:
-                            setPadding(appearance.getDimensionPixelSize(attr, 0));
+                            setSpacer(appearance.getDimensionPixelSize(attr, 0));
+                            break;
                     }
                 }
                 setTypefaceFromAttrs(fontFamily, typefaceIndex, styleIndex);
@@ -166,7 +186,7 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
         mBar2.setLabel(labels[1]);
         mBar3.setLabel(labels[2]);
 
-        mPadding = Math.max(mPadding, mFontSize);
+        mSpacer = Math.max(mSpacer, mFontSize);
         invalidate();
     }
 
@@ -177,28 +197,29 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
         if (mBar3 != null) mBar3.setTextSize(size);
 
         if (mLabels != null && mLabels.length > 0) {
-            mPadding = Math.max(mPadding, size);
+            mSpacer = Math.max(mSpacer, size);
         }
         invalidate();
     }
 
-    public void setPadding(int padding) {
-        mPadding = Math.max(padding, mFontSize);
+    public void setSpacer(int spacer) {
+        Log.i("ColorPicker", "Spacer: " + spacer);
+        mSpacer = Math.max(spacer, mFontSize);
         invalidate();
     }
 
     @Override
     public int getColor() {
-        return Color.HSVToColor(hsl);
+        return Color.HSVToColor(mHSV);
     }
 
     public void setColor(int color) {
         internalSetColor(color);
 
         if (mMode == MODE.HSV) {
-            mBar1.setVal(hsl[0] / 360f);
-            mBar2.setVal(hsl[1]);
-            mBar3.setVal(hsl[2]);
+            mBar1.setVal(mHSV[0] / 360f);
+            mBar2.setVal(mHSV[1]);
+            mBar3.setVal(mHSV[2]);
         } else {
             mBar1.setVal(Color.red(color) / 255f);
             mBar2.setVal(Color.green(color) / 255f);
@@ -209,9 +230,13 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
         invalidate();
     }
 
+    private void internalSetColor(float[] color) {
+        mColor = Color.HSVToColor(color);
+    }
+
     private void internalSetColor(int color) {
         mColor = color;
-        Color.colorToHSV(color, hsl);
+        Color.colorToHSV(color, mHSV);
     }
 
     private void setupBars() {
@@ -256,28 +281,43 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
     @Override
     protected void init(Context context) {
         mColor = Color.RED;
-        hsl = new float[3];
-        hsl[0] = 0f;
-        hsl[1] = 1f;
-        hsl[2] = 1f;
+        mHSV = new float[3];
+        mHSV[0] = 0f;
+        mHSV[1] = 1f;
+        mHSV[2] = 1f;
         setupBars();
     }
 
     private float getBarHeight() {
-        return getHeight() / 3;
+        float h = getHeight() - mSpacer*2;
+        if (mIndicator != null) {
+            h -= Math.max(0,(mIndicator.getIntrinsicHeight()/2 - h/6));
+        }
+        return h/3;
     }
 
     @Override
     public void onDraw(Canvas canvas) {
+        int outerState = canvas.save();
+        canvas.translate(getPaddingLeft(), getPaddingTop());
+
         int state = canvas.save();
-
         mBar1.draw(canvas);
-        canvas.translate(0f, getBarHeight());
+        canvas.translate(0f, getBarHeight() + mSpacer);
         mBar2.draw(canvas);
-        canvas.translate(0f, getBarHeight());
+        canvas.translate(0f, getBarHeight() + mSpacer);
         mBar3.draw(canvas);
-
         canvas.restoreToCount(state);
+
+        state = canvas.save();
+        mBar1.drawIndicator(canvas, mFontSize);
+        canvas.translate(0f, getBarHeight() + mSpacer);
+        mBar2.drawIndicator(canvas, mFontSize);
+        canvas.translate(0f, getBarHeight() + mSpacer);
+        mBar3.drawIndicator(canvas, mFontSize);
+        canvas.restoreToCount(state);
+
+        canvas.restoreToCount(outerState);
     }
 
     private class Bar {
@@ -316,20 +356,20 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
             mPaint.setAntiAlias(mDragging == null);
 
             if (mGradient == null) {
-                mGradient = new LinearGradient(mPadding, mPadding, getWidth() - mPadding, mPadding, mColors, null, Shader.TileMode.CLAMP);
+                mGradient = new LinearGradient(0, 0, getBarWidth(), 0, mColors, null, Shader.TileMode.CLAMP);
             }
 
             float textSize = 0f;
-            if (mLabel != null) {
+            if (!TextUtils.isEmpty(mLabel)) {
                 if (mTextColor != null) {
                     mPaint.setColor(mTextColor.getColorForState(View.EMPTY_STATE_SET, Color.BLACK));
                 }
                 textSize = mPaint.getTextSize();
-                canvas.drawText(mLabel.toString(), mPadding, mPadding, mPaint);
+                canvas.drawText(mLabel.toString(), 0, textSize, mPaint);
             }
 
             if (mRect == null) {
-                mRect = new RectF(mPadding, mPadding + textSize*0.25f, getWidth()-mPadding, getBarHeight());
+                mRect = new RectF(0, textSize* TEXT_SPACING, getBarWidth(), getBarHeight());
             }
             mPaint.setShader(mGradient);
             canvas.drawRect(mRect, mPaint);
@@ -337,27 +377,26 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
             mPaint.setShader(null);
             mPaint.setStyle(Paint.Style.STROKE);
             mPaint.setStrokeWidth(1);
-            mPaint.setColor(0xAAAAAAAA);
+            mPaint.setColor(0xFFAAAAAA);
             canvas.drawRect(mRect, mPaint);
-
-            drawIndicator(canvas, textSize);
-
             canvas.restoreToCount(state);
         }
 
         private void drawIndicator(Canvas canvas, float textSize) {
             int state = canvas.save();
-            canvas.translate(mPosition * (getWidth() - mPadding * 2) + mPadding, textSize/8 + mPadding/2 + getBarHeight() / 2);
+            float ts = (TextUtils.isEmpty(mLabel) ? 0 : textSize);
+            canvas.translate(mPosition * getBarWidth(), ts* TEXT_SPACING + (getBarHeight()-ts* TEXT_SPACING) / 2);
 
-            float r = (getBarHeight() - mPadding - textSize)/3;
             if (mIndicator != null) {
-                float aspect = (float) mIndicator.getIntrinsicHeight() / (float) mIndicator.getIntrinsicWidth();
-                mIndicator.setBounds((int) -r, (int) (-r*aspect), (int)r, (int) (r*aspect) );//mIndicator.getMinimumWidth(), mIndicator.getMinimumHeight());
+                float w = mIndicator.getIntrinsicWidth()/2;
+                float h = mIndicator.getIntrinsicHeight()/2;
+                mIndicator.setBounds((int) -w, (int) -h, (int)w, (int) h);
                 if (mIndicator instanceof BitmapDrawable && shouldTint) {
                     ((BitmapDrawable) mIndicator).setColorFilter(getColor(), PorterDuff.Mode.MULTIPLY);
                 }
                 mIndicator.draw(canvas);
             } else {
+                float r = (getBarHeight() - ts* TEXT_SPACING)/4;
                 mPaint.setStyle(Paint.Style.FILL);
                 mPaint.setShader(null);
                 mPaint.setColor(shouldTint ? getColor() : Color.WHITE);
@@ -376,15 +415,22 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
             canvas.restoreToCount(state);
         }
 
+        private float getBarWidth() {
+            return getWidth() - getPaddingLeft() - getPaddingRight();
+        }
+
         public void setVal(float val) {
             mPosition = val;
         }
 
+        public float getVal() {
+            return mPosition;
+        }
+
         public float dragTo(float x, float y) {
-            x = Math.max(x, mPadding);
-            x = Math.min(x, getWidth() - mPadding);
-            x -= mPadding;
-            mPosition = x/(getWidth() - mPadding*2);
+            x = Math.max(x, 0);
+            x = Math.min(x, getBarWidth());
+            mPosition = x/(getBarWidth());
             return mPosition;
         }
 
@@ -414,12 +460,13 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
                 float val = dragging.dragTo(event.getX(i), event.getY(i));
                 if (mMode == MODE.HSV) {
                     if (dragging == mBar1)
-                        hsl[0] = val * 360;
+                        mHSV[0] = val * 360;
                     else if (dragging == mBar2)
-                        hsl[1] = val;
+                        mHSV[1] = val;
                     else if (dragging == mBar3)
-                        hsl[2] = val;
-                    internalSetColor(Color.HSVToColor(hsl));
+                        mHSV[2] = val;
+                    Log.i("ColorPicker", "Setting " + mHSV[0] + "," + mHSV[1] + "," + mHSV[2]);
+                    internalSetColor(mHSV);
                 } else {
                     if (dragging == mBar1) {
                         internalSetColor(Color.rgb((int) (val * 255), getGreen(), getBlue()));
@@ -457,7 +504,7 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
     }
 
     private Bar getBarAt(float x, float y) {
-        int bar = (int) Math.floor(y / getBarHeight());
+        int bar = (int) Math.floor(y / (getBarHeight() + mSpacer));
         switch(bar) {
             case 0: return mBar1;
             case 1: return mBar2;

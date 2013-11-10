@@ -43,8 +43,8 @@ public class ColorNames {
 
     private static float difference(float[] hsv1, float[] hsv2) {
         return (hsv1[0] - hsv2[0])*(hsv1[0] - hsv2[0]) +
-               (hsv1[1] - hsv2[1])*(hsv1[1] - hsv2[1]) +
-               (hsv1[2] - hsv2[2])*(hsv1[2] - hsv2[2]);
+               (hsv1[1] - hsv2[1])*(hsv1[1] - hsv2[1]) * 100 * 100 +
+               (hsv1[2] - hsv2[2])*(hsv1[2] - hsv2[2]) * 100 * 100;
     }
 
     public static String roundToName(int color) {

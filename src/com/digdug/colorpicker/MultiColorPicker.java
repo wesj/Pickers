@@ -105,7 +105,7 @@ public class MultiColorPicker extends TabHost implements ColorPicker,
             if ("triangle".equals(s)) {
                 v = new TriangleColorPicker(getContext());
             } else if ("palette".equals(s)) {
-                v = new PaletteColorPicker(getContext());
+                v = new FancyPalette(getContext());
                 v.setPadding(20, 20, 20, 20);
 
                 int size = 18;
@@ -113,7 +113,8 @@ public class MultiColorPicker extends TabHost implements ColorPicker,
                 for (int i = 0; i < size; i++) {
                     colors[i] = Color.rgb((int) (Math.random() * 255), (int) (Math.random() * 255), (int) (Math.random() * 255));
                 }
-                ((PaletteColorPicker)v).setPalette(colors);
+                ((FancyPalette)v).setPalette(colors);
+                ((FancyPalette)v).showDefaultPalette(false);
             } else if ("hsv".equals(s)) {
                 v = new SliderColorPicker(getContext());
                 ((SliderColorPicker)v).setMode(SliderColorPicker.MODE.HSV);
@@ -123,7 +124,8 @@ public class MultiColorPicker extends TabHost implements ColorPicker,
                 v = new SliderColorPicker(getContext());
                 ((SliderColorPicker)v).setMode(SliderColorPicker.MODE.RGB);
                 ((SliderColorPicker)v).setTextSize(getContext().getResources().getDimensionPixelSize(R.dimen.medium_font_size));
-                ((SliderColorPicker)v).setPadding(40);
+                ((SliderColorPicker)v).setSpacer(40);
+                v.setPadding(40,50,40,50);
             }
 
             if (v != null) {

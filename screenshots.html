@@ -1,6 +1,6 @@
-<!doctype html>
-<html>
-  <head>
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1252">
     <title>Pickers - Screenshots</title>
     <style type="text/css">
 body, html {
@@ -66,13 +66,28 @@ section {
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
-    padding: 6em 1em;
+    padding: 10em 1em;
     text-align: justify;
 }
 
-img {
+figure {
+  padding: 0;
+  margin: 0;
+  display: inline-block;
   width: 275px;
-  display: inline;
+  box-shadow: 0px 2px 2px black;
+  padding: 5px;
+  margin: 5px;
+}
+figure > img {
+  padding: 0;
+  margin: 0;
+  width: 275px;
+  border: 1px solid gray;
+}
+figure > p {
+  padding: 0;
+  margin: 0;
 }
 
 #banner ul,
@@ -120,28 +135,56 @@ footer p {
     <div class="wrapper">
       <nav>
         <ul>
-          <li><a href="index.html">Main</a></li>
-          <li><a href="usage.html">Usage</a></li>
+          <li><a href="http://wesj.github.io/Pickers/index.html">Main</a></li>
+          <li><a href="http://wesj.github.io/Pickers/usage.html">Usage</a></li>
         </ul>
       </nav>
 
       <section>
-        <img src="http://dl.dropboxusercontent.com/u/72157/picker/Triangle1.png">
-        <img src="http://dl.dropboxusercontent.com/u/72157/picker/Palette1.png">
-        <img src="http://dl.dropboxusercontent.com/u/72157/picker/Palette2.png">
-        <img src="http://dl.dropboxusercontent.com/u/72157/picker/HSV1.png">
-        <img src="http://dl.dropboxusercontent.com/u/72157/picker/HSV2.png">
-        <img src="http://dl.dropboxusercontent.com/u/72157/picker/RGB1.png">
-        <img src="http://dl.dropboxusercontent.com/u/72157/picker/RGB2.png">
-        <img src="http://dl.dropboxusercontent.com/u/72157/picker/DemoApp.png">
-        <img src="http://dl.dropboxusercontent.com/u/72157/picker/Circle.png">
+        <figure>
+            <img src="Screenshots_files/Triangle1.png">
+            <p>TriangleColorPicker</p>
+        </figure>
+        <figure>
+            <img src="Screenshots_files/Palette1.png">
+            <p>PaletteColorPicker - default options</p>
+        </figure>
+        <figure>
+            <img src="Screenshots_files/Palette2.png">
+            <p>FancyPalette - using a custom (random in this case) palette and custom shapes</p>
+        </figure>
+        <figure>
+            <img src="Screenshots_files/HSV1.png">
+            <p>SliderColorPicker in HSV mode with default options</p>
+        </figure>
+        <figure>
+            <img src="Screenshots_files/HSV2.png">
+            <p>SliderColorPicker in HSV mode with custom spacing and labels</p>
+        </figure>
+        <figure>
+            <img src="Screenshots_files/RGB1.png">
+            <p>SliderColorPicker in RGB mode with default options</p>
+        </figure>
+        <figure>
+            <img src="Screenshots_files/RGB2.png">
+            <p>SliderColorPicker in RGB mode with custom spacing</p>
+        </figure>
+        <figure>
+            <img src="Screenshots_files/DemoApp.png">
+            <p>Home page showing a slider color picker in RGB mode with custom indicators</p>
+        </figure>
+        <figure>
+            <img src="Screenshots_files/Circle.png">
+            <p>CircleColorPicker</p>
+        </figure>
       </section>
 
       <footer>
         <p>Project maintained by <a href="https://github.com/wesj">wesj</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></small></p>
+        <p><small>Hosted on GitHub Pages — Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></small></p>
       </footer>
 
     </div>
-  </body>
-</html>
+  
+
+</body></html>

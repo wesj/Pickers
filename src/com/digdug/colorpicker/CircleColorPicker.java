@@ -207,9 +207,9 @@ public class CircleColorPicker extends ViewBase implements ColorPicker {
     @Override
     public void setColor(int color) {
         Color.colorToHSV(color, hsv);
-        rings[0].setValue(hsv[0]/360);
-        rings[1].setValue(1f - hsv[1]/2);
-        rings[2].setValue(1f - hsv[2]/2);
+        rings[0].setValue(360 - hsv[0]/360);
+        rings[1].setValue(hsv[1]/2 + 0.5f);
+        rings[2].setValue(hsv[2]/2 + 0.5f);
         updateHues();
         if (mCallback != null) {
             mCallback.onChange(Color.HSVToColor(hsv));

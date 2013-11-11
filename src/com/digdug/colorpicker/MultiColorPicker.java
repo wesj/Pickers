@@ -115,6 +115,7 @@ public class MultiColorPicker extends TabHost implements ColorPicker,
                 }
                 ((FancyPalette)v).setPalette(colors);
                 ((FancyPalette)v).showDefaultPalette(false);
+                v.setPadding(40,20,40,20);
             } else if ("hsv".equals(s)) {
                 v = new SliderColorPicker(getContext());
                 ((SliderColorPicker)v).setMode(SliderColorPicker.MODE.HSV);

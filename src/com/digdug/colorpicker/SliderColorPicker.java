@@ -50,6 +50,10 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
     private float mSpacer;
     private boolean shouldTint = true;
 
+    private int mTypefaceIndex = 0;
+    private String mFontFamily = "";
+    private int mStyleIndex = 0;
+
     private float getHue() { return mHSV[0]; }
     private float getSat() { return mHSV[1]; }
     private float getVal() { return mHSV[2]; }
@@ -80,87 +84,49 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
 
     public SliderColorPicker(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+
         Resources r = getResources();
         STROKE = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, STROKE_BASE, r.getDisplayMetrics());
-
-        final Resources.Theme theme = context.getTheme();
-        if (theme != null) {
-            int[] vals = new int[0];
-            if (attrs != null) {
-                vals = new int[attrs.getAttributeCount()];
-                for (int i = 0; i < attrs.getAttributeCount(); i++) {
-                    vals[i] = attrs.getAttributeNameResource(i);
-                }
-            }
-            TypedArray appearance = theme.obtainStyledAttributes(attrs, vals, defStyle, android.R.style.TextAppearance_DeviceDefault);
-
-            if (appearance != null) {
-                int n = appearance.length(); // getIndexCount();
-
-                int typefaceIndex = 0;
-                String fontFamily = "";
-                int styleIndex = 0;
-
-                for (int i = 0; i < n; i++) {
-                    int attr = i; //appearance.getIndex(i);
-
-                    TypedValue val = new TypedValue();
-                    appearance.getValue(i, val);
-
-                    switch (vals[attr]) {
-                        case android.R.attr.textColor:
-                            mTextColor = appearance.getColorStateList(attr);
-                            break;
-                        case android.R.attr.targetDescriptions:
-                            setLabels(appearance.getTextArray(attr));
-                            break;
-                        case android.R.attr.textSize:
-                            setTextSize(appearance.getDimensionPixelSize(attr, -1));
-                            break;
-                        case android.R.attr.typeface:
-                            typefaceIndex = appearance.getInt(attr, -1);
-                            break;
-                        case android.R.attr.fontFamily:
-                            fontFamily = appearance.getString(attr);
-                            break;
-                        case android.R.attr.textAllCaps:
-                            mAllCaps = appearance.getBoolean(attr, false);
-                            break;
-                        case android.R.attr.textStyle:
-                            styleIndex = appearance.getInt(attr, -1);
-                            break;
-                        case android.R.attr.src:
-                            mIndicator = appearance.getDrawable(attr);
-                            break;
-                        case android.R.attr.padding:
-                            int padding = appearance.getDimensionPixelSize(attr, 0);
-                            setPadding(padding, padding, padding, padding);
-                            break;
-                        case android.R.attr.paddingLeft:
-                            setPadding(appearance.getDimensionPixelSize(attr, 0), getPaddingTop(), getPaddingRight(), getPaddingBottom());
-                            break;
-                        case android.R.attr.paddingRight:
-                            setPadding(getPaddingLeft(), getPaddingTop(), appearance.getDimensionPixelSize(attr, 0), getPaddingBottom());
-                            break;
-                        case android.R.attr.paddingTop:
-                            setPadding(getPaddingLeft(), appearance.getDimensionPixelSize(attr, 0), getPaddingRight(), getPaddingBottom());
-                            break;
-                        case android.R.attr.paddingBottom:
-                            setPadding(getPaddingLeft(), getPaddingTop(), getPaddingRight(), appearance.getDimensionPixelSize(attr, 0));
-                            break;
-                        case android.R.attr.spacing:
-                            setSpacer(appearance.getDimensionPixelSize(attr, 0));
-                            break;
-                    }
-                }
-                setTypefaceFromAttrs(fontFamily, typefaceIndex, styleIndex);
-                appearance.recycle();
-            }
-        }
 
         if (mFontSize < 0) {
             setTextSize(40);
         }
+    }
+
+    protected void handleAttribute(int type, TypedArray appearance, int index) {
+        switch (type) {
+            case android.R.attr.textColor:
+                mTextColor = appearance.getColorStateList(index);
+                return;
+            case android.R.attr.targetDescriptions:
+                setLabels(appearance.getTextArray(index));
+                return;
+            case android.R.attr.textSize:
+                setTextSize(appearance.getDimensionPixelSize(index, -1));
+                return;
+            case android.R.attr.typeface:
+                mTypefaceIndex = appearance.getInt(index, -1);
+                setTypefaceFromAttrs(mFontFamily, mTypefaceIndex, mStyleIndex);
+                return;
+            case android.R.attr.fontFamily:
+                mFontFamily = appearance.getString(index);
+                setTypefaceFromAttrs(mFontFamily, mTypefaceIndex, mStyleIndex);
+                return;
+            case android.R.attr.textAllCaps:
+                mAllCaps = appearance.getBoolean(index, false);
+                return;
+            case android.R.attr.textStyle:
+                mStyleIndex = appearance.getInt(index, -1);
+                setTypefaceFromAttrs(mFontFamily, mTypefaceIndex, mStyleIndex);
+                return;
+            case android.R.attr.src:
+                mIndicator = appearance.getDrawable(index);
+                return;
+            case android.R.attr.spacing:
+                setSpacer(appearance.getDimensionPixelSize(index, 0));
+                return;
+        }
+        super.handleAttribute(type, appearance, index);
     }
 
     public void setLabels(int[] labelIds) {
@@ -289,7 +255,7 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
     }
 
     private float getBarHeight() {
-        float h = getHeight() - mSpacer*2;
+        float h = getHeight() - getPaddingTop() - getPaddingBottom() - mSpacer*2;
         if (mIndicator != null) {
             h -= Math.max(0,(mIndicator.getIntrinsicHeight()/2 - h/6));
         }
@@ -504,7 +470,7 @@ public class SliderColorPicker extends ViewBase implements ColorPicker {
     }
 
     private Bar getBarAt(float x, float y) {
-        int bar = (int) Math.floor(y / (getBarHeight() + mSpacer));
+        int bar = (int) Math.floor( (y - getPaddingTop()) / (getBarHeight() + mSpacer));
         switch(bar) {
             case 0: return mBar1;
             case 1: return mBar2;

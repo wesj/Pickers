@@ -59,11 +59,24 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View v) {
                 mDialog = new ColorPickerDialog(MainActivity.this);
+                mDialog.setMode(ColorPickerDialog.Mode.TRIANGLE);
                 mDialog.setButton(Dialog.BUTTON_POSITIVE, ok, mColorListener);
                 mDialog.setColor(mColor);
                 mDialog.show();
 			}
 		});
+
+        button = (Button)findViewById(R.id.circleButton);
+        button.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDialog = new ColorPickerDialog(MainActivity.this);
+                mDialog.setMode(ColorPickerDialog.Mode.CIRCLE);
+                mDialog.setButton(Dialog.BUTTON_POSITIVE, ok, mColorListener);
+                mDialog.setColor(mColor);
+                mDialog.show();
+            }
+        });
 
         button = (Button)findViewById(R.id.colorButton3);
         button.setOnClickListener(new OnClickListener() {

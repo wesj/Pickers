@@ -1,5 +1,6 @@
 package com.digdug.colorpicker;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -7,7 +8,8 @@ import android.graphics.Canvas.VertexMode;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.SweepGradient;
+import android.graphics.PointF;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -18,7 +20,7 @@ public class TriangleColorPicker extends ViewBase implements ColorPicker {
 	private float mHue = 0;
 	private int[] mColors;
 	private Paint mPaint;
-	private float[] mCenter;
+	private PointF mCenter;
 	private float mVal = 1.0f;
 	private float mSat = 1.0f;
 	HoverObj dragging = HoverObj.NOTHING;
@@ -29,7 +31,7 @@ public class TriangleColorPicker extends ViewBase implements ColorPicker {
 	private ColorListener mListener;
 	private int fontSize = 40;
 
-    TriangleWidget mTriangle = new TriangleWidget() {
+    TriangleWidget mTriangle = new TriangleWidget(this) {
         private Bitmap cache;
         private float[] mVerts;
 
@@ -53,24 +55,26 @@ public class TriangleColorPicker extends ViewBase implements ColorPicker {
             int sides = 3;
             mVerts = new float[sides*2];
             for (int i = 0; i < sides; i++) {
-                mVerts[2*i]   = (float) (cx + Math.cos(Math.PI*2*i/sides)*(r - WIDTH/2));
-                mVerts[2*i+1] = (float) (cy + Math.sin(Math.PI*2*i/sides)*(r - WIDTH/2));
+                mVerts[2*i]   = (float) (cx + Math.cos(Math.PI*2*i/sides)*(r - WIDTH));
+                mVerts[2*i+1] = (float) (cy + Math.sin(Math.PI*2*i/sides)*(r - WIDTH));
             }
             return mVerts;
         }
 
         @Override
-        public void draw(Canvas canvas, float[] c, float r) {
+        public void draw(Canvas canvas) {
             int save = canvas.save();
-            canvas.rotate(mHue, c[0], c[1]);
-            float[] verts = getVerts(c[0], c[1], r);
+            PointF c = getCenter();
+            float r = getRadius();
+            canvas.rotate(mHue, c.x, c.y);
+            float[] verts = getVerts(c.x, c.y, r);
             canvas.drawVertices(VertexMode.TRIANGLE_FAN, verts.length,
                     verts, 0,
                     null, 0,
                     mColors, 0,
                     null, 0, 0, mPaint);
             canvas.restoreToCount(save);
-            mIndicator.draw(canvas, c ,r);
+            mIndicator.draw(canvas);
         }
     };
 
@@ -90,6 +94,7 @@ public class TriangleColorPicker extends ViewBase implements ColorPicker {
 		super(context, attrs, defStyle);
 	}
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     protected void init(Context context) {
 		setLayerType(View.LAYER_TYPE_SOFTWARE, null);		
 		mPaint = new Paint();
@@ -151,16 +156,16 @@ public class TriangleColorPicker extends ViewBase implements ColorPicker {
 				return color;
 		}
 
-		float [] c = getCenter();
+		PointF c = getCenter();
 		float r  = getRadius();
 
 		// rotate the points
 		Matrix m = new Matrix();
-		m.setRotate(-1*mHue, c[0], c[1]);
+		m.setRotate(-1*mHue, c.x, c.y);
 		float[] pt = new float[] { x, y } ;
 		m.mapPoints(pt);
 
-		float[] verts = mTriangle.getVerts(c[0], c[1], r);
+		float[] verts = mTriangle.getVerts(c.x, c.y, r);
 		if (pt[0] < verts[2]) {
 			pt[0] = verts[2];
 			pt[1] = Math.min(verts[3], Math.max(pt[1], verts[5]));
@@ -170,7 +175,7 @@ public class TriangleColorPicker extends ViewBase implements ColorPicker {
 			pt[1] = Math.max(verts[5], (verts[5] - verts[1])/(verts[4]-verts[0])*(pt[0] - verts[0]) + verts[1]);
 		}
 
-		m.setRotate(mHue, c[0], c[1]);
+		m.setRotate(mHue, c.x, c.y);
 		m.mapPoints(pt);
         if (pt[0] > 0 && pt[0] < cache.getWidth() && pt[1] > 0 && pt[1] < cache.getHeight())
 		    return cache.getPixel((int)pt[0], (int)pt[1]);
@@ -185,9 +190,9 @@ public class TriangleColorPicker extends ViewBase implements ColorPicker {
 		if (dragging != HoverObj.NOTHING)
 			return dragging;
 
-		float[] center = getCenter();
-		float dx = x - center[0];
-		float dy = y - center[1];
+		PointF center = getCenter();
+		float dx = x - center.x;
+		float dy = y - center.y;
 		float r  = getRadius();
 
 		if (Math.sqrt(dx*dx + dy*dy) > r - fontSize) {
@@ -215,17 +220,18 @@ public class TriangleColorPicker extends ViewBase implements ColorPicker {
 		return r;
 	}
 
-	private float[] getCenter() {
+	private PointF getCenter() {
 		if (mCenter != null)
 			return mCenter;
-		mCenter = new float[] { getWidth()/2, getHeight()/2 };
+
+		mCenter = new PointF(getWidth()/2, getHeight()/2);
 		return mCenter;
 	}
 
 	private float getHueFromPoint(float x, float y) {
-		float[] center = getCenter();
-		float dx = x - center[0];
-		float dy = y - center[1];
+        PointF center = getCenter();
+		float dx = x - center.x;
+		float dy = y - center.y;
 
 		float h = (float) (Math.atan(dy/dx)*180/Math.PI);
 		if (dx < 0) {
@@ -252,78 +258,35 @@ public class TriangleColorPicker extends ViewBase implements ColorPicker {
 	}
 	
 	public void onDraw(Canvas canvas) {
-		float [] c = getCenter();
-		float r  = getRadius();
-
-        mCircle.draw(canvas, c, r);
-        mTriangle.draw(canvas, c ,r);
+        mCircle.setCenter(getCenter());
+        mCircle.setRadius(getRadius() - WIDTH/2);
+        mCircle.draw(canvas);
+        mTriangle.draw(canvas);
 	}
 
-    abstract private class Widget {
-        private Bitmap mCache;
+    ColorRing mCircle = new ColorRing(this, hueList);
 
-        abstract public void draw(Canvas canvas, float[] center, float radius);
-
-        public void startHover() { }
-        public void endHover() { }
-        public void unHover() { }
-
-        public void clearCaches() {
-            mCache = null;
-        }
-
-        public Bitmap getCache() {
-            if (mCache != null)
-                return mCache;
-            mCache = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
-            Canvas c = new Canvas(mCache);
-            mTriangle.draw(c, getCenter(), getRadius());
-            return mCache;
-        }
-    }
-
-    Widget mCircle = new Widget() {
-        Paint mPaint;
-
-        private Paint getPaint(float cx, float cy) {
-            if (mPaint != null)
-                return mPaint;
-
-            mPaint = new Paint();
-            mPaint.setStyle(Paint.Style.STROKE);
-            mPaint.setStrokeWidth(WIDTH);
-            mPaint.setShader(new SweepGradient(cx, cy,
-                    hueList,
-                    null));
-            return mPaint;
-        }
-
+    Widget mIndicator = new Widget(this) {
         @Override
-        public void draw(Canvas canvas, float[] c, float r) {
-            canvas.drawCircle(c[0], c[1], r, getPaint(c[0], c[1]));
-        }
-    };
+ 	    public void draw(Canvas canvas) {
+            int save = canvas.save();
+            PointF c = getCenter();
+            int[] coords = mTriangle.getCoords(c.x, c.y, r);
 
-    Widget mIndicator = new Widget() {
-        @Override
- 	    public void draw(Canvas canvas, float[] c, float r) {
-        int save = canvas.save();
-        int[] coords = mTriangle.getCoords(c[0], c[1], r);
+            canvas.translate(c.x, c.y);
+            canvas.rotate(mHue, 0, 0);
 
-        canvas.translate(c[0], c[1]);
-        canvas.rotate(mHue, 0, 0);
+            Paint p = new Paint();
+            p.setColor(getColor());
+            p.setStyle(Paint.Style.FILL);
+            canvas.drawCircle(coords[0], coords[1], WIDTH/2, p);
 
-        Paint p = new Paint();
-        p.setColor(getColor());
-        p.setStyle(Paint.Style.FILL);
-        canvas.drawCircle(coords[0], coords[1], WIDTH/2, p);
+            p.setStyle(Paint.Style.STROKE);
+            p.setStrokeWidth(5);
+            p.setColor(mVal > 0.5 ? Color.BLACK : Color.WHITE);
+            canvas.drawCircle(coords[0], coords[1], WIDTH/2, p);
 
-        p.setStyle(Paint.Style.STROKE);
-        p.setStrokeWidth(5);
-        p.setColor(mVal > 0.5 ? Color.BLACK : Color.WHITE);
-        canvas.drawCircle(coords[0], coords[1], WIDTH/2, p);
-
-        canvas.restoreToCount(save);
+            canvas.restoreToCount(save);
         }
     };
 
@@ -341,6 +304,9 @@ public class TriangleColorPicker extends ViewBase implements ColorPicker {
     }
 
     abstract public class TriangleWidget extends Widget {
+        public TriangleWidget(View v) {
+            super(v);
+        }
         abstract public int[] getCoords(float cx, float cy, float r);
         abstract public float[] getVerts(float cx, float cy, float r);
     }

@@ -17,6 +17,7 @@ public class ColorPickerDialog extends DialogBase implements ColorListener {
 
 	public static enum Mode {
 		TRIANGLE,
+        CIRCLE,
 		PALETTE,
         HSV,
         RGB,
@@ -44,6 +45,10 @@ public class ColorPickerDialog extends DialogBase implements ColorListener {
 			case TRIANGLE:
 				v = new TriangleColorPicker(getContext()); 
 				break;
+            case CIRCLE:
+                v = new CircleColorPicker(getContext());
+                ((View)v).setPadding(10, 10, 10, 10);
+                break;
 			case PALETTE:
 				v = new PaletteColorPicker(getContext());
 				break;
